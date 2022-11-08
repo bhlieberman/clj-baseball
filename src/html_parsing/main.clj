@@ -1,28 +1,24 @@
-(ns html-parsing.main
-  (:require [table.core :as t]
-   [clojure.java.io :as io])
-  (:import [org.jsoup Jsoup]
-           [java.io File]))
+(ns html-parsing.main 
+  (:import [org.jsoup Jsoup]))
 
-(def html-conn (Jsoup/connect "https://www.baseball-reference.com/players/m/mullice01.shtml"))
+(defn bbref-conn [url] (Jsoup/connect url))
 
-(def doc (.get html-conn))
+(def doc (.get bbref-conn))
 
-(def cedric (-> doc (.getElementsByTag "table") first .children .text))
+(defn get-batting-table [doc] 
+  (some-> doc 
+      (.getElementById "batting_standard")
+      .children))
 
-(defn html->str [doc] (->> doc (re-seq #"\w+") (partition 32)))
+(defn html->str [doc] (->> doc .text (re-seq #"\w+") (partition 32)))
 
-(def data (html->str cedric))
+(defn data [doc] (-> doc get-batting-table html->str))
 
 (def str->cols (comp
                 (take 1)
                 (mapcat identity)
                 (filter (complement #{"Standard" "Batting"}))))
 
-(def cols (transduce str->cols conj data))
+(def cols (->> doc data (transduce str->cols conj)))
 
 (def rows (into [] (eduction (map vec) (drop 1) data)))
-
-(let [f (File. "test-table.txt")]
-  (with-open [wtr (io/writer f)]
-    (.write wtr (t/table-str [cols rows] :style :unicode))))
