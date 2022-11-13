@@ -1,7 +1,10 @@
 {:deps {metosin/muuntaja {:mvn/version "0.6.8"}
         metosin/muuntaja-form {:mvn/version "0.6.8"}
-        org.jsoup/jsoup {:mvn/version "1.15.3"}}
+        org.jsoup/jsoup {:mvn/version "1.15.3"}
+        clj-http/clj-http {:mvn/version "3.12.3"}
+        org.clojure/core.async {:mvn/version "1.6.673"}
+        com.cnuernber/charred {:mvn/version "1.014"}}
  :aliases
  {:dev
-  {:extra-deps  {djblue/portal {:mvn/version "0.33.0"} 
-           rm-hull/table {:mvn/version "0.7.1"}}}}}
+  {:extra-deps  {djblue/portal {:mvn/version "0.33.0"}
+                 rm-hull/table {:mvn/version "0.7.1"}}}}}
