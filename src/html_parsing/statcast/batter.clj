@@ -1,12 +1,19 @@
 (ns html-parsing.statcast.batter
-  (:require [ring.util.codec :refer [form-encode]]
-            [clojure.java.io :as io])
-  (:import [org.jsoup Jsoup]
-           [java.time LocalDate]
+  (:require #_[ring.util.codec :refer [form-encode]]
+   [clojure.java.io :as io]
+            [charred.api :refer [read-csv]]
+            [table.core :refer [table]]
+            #_[clojure.core.async :refer [>!! <!! go chan alts!! alts! <! >!]]
+            #_[clj-http.client :as client]
+            [portal.api :as p])
+  (:import [java.time LocalDate]
            [java.io File]
            [java.net.http HttpClient #_HttpRequest$BodyPublishers
             HttpRequest HttpResponse$BodyHandlers]
            [java.net URI]))
+
+(def p (p/open {:launcher :vs-code}))
+(add-tap #'p/submit)
 
 (def form-data [:pitch-type :pitch-result :batted-ball-location
                 :count :player-type :pitcher-handedness :game-date-after
@@ -58,26 +65,20 @@
     (-> query-keys
         (zipmap (repeat times nil))
         (assoc :player-type "batter"
-               :game-date-before (LocalDate/now)))))
+               :game_date_gt "2022-04-28"
+               :game_date_lt "2022-05-01"
+               :sort-order "desc"
+               :hfTeam "Orioles"))))
 
-(let [times (count query-keys)
-      filled-form (-> query-keys
-                      (zipmap (repeat times nil))
-                      (assoc :player-type "batter"
-                             :game_date_gt (LocalDate/of 2022 04 01)
-                             :game_date_lt (LocalDate/of 2022 07 01)
-                             :sort-order "desc"
-                             :hfTeam "Orioles")
-                      seq
-                      form-encode)
-      url (URI. (str "https://baseballsavant.mlb.com/statcast_search?" filled-form))
-      req (-> url
-              (HttpRequest/newBuilder)
-              .build)
-      client (HttpClient/newHttpClient)
-      handler (HttpResponse$BodyHandlers/ofInputStream)
-      resp (.send client req handler)
-      j (Jsoup/parse (.body resp) nil "https://baseballsavant.mlb.com/statcast_search")
-      out-str (.text (.body j))]
-  (with-open [wtr (io/writer (File. "search-results.txt"))]
-    (.write wtr out-str)))
+(comment
+  (let [url-str "https://baseballsavant.mlb.com/statcast_search/csv"
+        req (-> url-str (str "?hfPT=&hfAB=&hfGT=R%7C&hfPR=&hfZ=&hfStadium=&hfBBL=&hfNewZones=&hfPull=&hfC=&hfSea=2022%7C&hfSit=&player_type=batter&hfOuts=&hfOpponent=&pitcher_throws=&batter_stands=&hfSA=&game_date_gt=2022-08-03&game_date_lt=2022-08-03&hfMo=&hfTeam=&home_road=&hfRO=&position=&hfInfield=&hfOutfield=&hfInn=&hfBBT=&hfFlag=&metric_1=&group_by=name&min_pitches=0&min_results=0&min_pas=0&sort_col=pitches&player_event_sort=api_p_release_speed&sort_order=desc&type=details&all=true") (URI.) (HttpRequest/newBuilder) .build)
+        client (HttpClient/newHttpClient)
+        handler (HttpResponse$BodyHandlers/ofInputStream)
+        out-str (-> (.send client req handler)
+                    .body)]
+    (with-open [wtr (io/writer (File. "search-results.txt"))
+                rdr (io/reader out-str)]
+      (.write wtr (apply str (line-seq rdr))))))
+
+(def data (partition 92 (first (read-csv (File. "search-results.txt") :async? true :profile :immutable))))
