@@ -1,23 +1,17 @@
 (ns html-parsing.statcast.batter
   (:require
    [clojure.java.io :as io]
-   [charred.api :refer [read-csv]]
-   [clojure.string :as str]
-   [clojure.walk :refer [postwalk-replace walk]]
+   [charred.api :refer [read-csv]] 
+   [clojure.walk :refer [postwalk-replace walk]] 
    #_[clojure.core.async :refer [>!! <!! go chan alts!! alts! <! >!]]
    #_[clj-http.client :as client]
-   [clojure.test :refer [deftest is run-test]]
-   [portal.api :as p]
+   [clojure.test :refer [deftest is run-test]] 
    [clojure.string :as string])
-  (:import [java.time LocalDate]
-           [java.time.format DateTimeFormatter]
-           [java.io File]
+  (:import [java.io File]
            [java.net.http HttpClient #_HttpRequest$BodyPublishers
             HttpRequest HttpResponse$BodyHandlers]
-           [java.net URI]))
-
-(def p (p/open {:launcher :vs-code}))
-(add-tap #'p/submit)
+           [java.net URI]
+           [org.apache.commons.io.input BOMInputStream]))
 
 (def query-defaults
   "The default sequence of query opts. Assumes nil values for all fields except :game-date-gt,
@@ -47,16 +41,21 @@
                                      "game_date_lt" (str "game_date_lt=" date-end?)
                                      "hfTeam" (str "hfTeam=" team?)} defaults)
                defaults)
-        req (-> base-url (str "?" qstr "&all=true") (URI.) (HttpRequest/newBuilder) .build) 
+        req (-> base-url 
+                (str "?" qstr "&all=true") 
+                (URI.) 
+                (HttpRequest/newBuilder) 
+                .build)
         handler (HttpResponse$BodyHandlers/ofInputStream)
-        out-str (-> (HttpClient/newHttpClient) (.send req handler) .body)]
+        out-str (-> (HttpClient/newHttpClient) 
+                    (.send req handler) 
+                    .body 
+                    (BOMInputStream.))]
     (with-open [wtr (io/writer (File. "search-results.txt"))
                 rdr (io/reader out-str)]
-      (.write wtr (apply str (line-seq rdr))))))
+      (.write wtr (apply str (read-csv rdr))))))
 
 (send-batter-req query-defaults "2022-05-01" "2022-05-02" "BAL%7C")
-
-(def data (partition 92 (first (read-csv (File. "search-results.txt") :async? true :profile :immutable))))
 
 (deftest test-update-query-map
   (let [curr (count (replace-default-val {} query-defaults))
