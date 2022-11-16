@@ -1,14 +1,13 @@
 (ns html-parsing.statcast.batter
   (:require
    [clojure.java.io :as io]
-   [charred.api :refer [read-csv]] 
-   [clojure.walk :refer [postwalk-replace walk]] 
-   #_[clojure.core.async :refer [>!! <!! go chan alts!! alts! <! >!]]
-   #_[clj-http.client :as client]
-   [clojure.test :refer [deftest is run-test]] 
-   [clojure.string :as string])
+   [clojure.walk :refer [postwalk-replace walk]]
+   [clojure.test :refer [deftest is run-test]]
+   [clojure.string :as string]
+   [charred.api :refer [read-csv]]
+   [html-parsing.http.client :refer [split-query send-split-reqs]])
   (:import [java.io File]
-           [java.net.http HttpClient #_HttpRequest$BodyPublishers
+           [java.net.http HttpClient
             HttpRequest HttpResponse$BodyHandlers]
            [java.net URI]
            [org.apache.commons.io.input BOMInputStream]))
@@ -36,30 +35,37 @@
 
 (defn send-batter-req [defaults date-start? date-end? team?]
   (let [base-url "https://baseballsavant.mlb.com/statcast_search/csv"
-        qstr (if (or date-start? date-end? team?)
-               (replace-default-val {"game_date_gt" (str "game_date_gt=" date-start?)
-                                     "game_date_lt" (str "game_date_lt=" date-end?)
-                                     "hfTeam" (str "hfTeam=" team?)} defaults)
-               defaults)
-        req (-> base-url 
-                (str "?" qstr "&all=true") 
-                (URI.) 
-                (HttpRequest/newBuilder) 
+        ds (split-query date-start? date-end?)
+        qs (map (fn [[start end]]
+                  (replace-default-val {"game_date_gt" (str "game_date_gt=" start)
+                                        "game_date_lt" (str "game_date_lt=" end)
+                                        "hfTeam" (str "hfTeam=" team?)} defaults)) ds)
+        req (-> base-url
+                (str "?" qstr "&all=true")
+                (URI.)
+                (HttpRequest/newBuilder)
                 .build)
         handler (HttpResponse$BodyHandlers/ofInputStream)
-        out-str (-> (HttpClient/newHttpClient) 
-                    (.send req handler) 
-                    .body 
+        out-str (-> (HttpClient/newHttpClient)
+                    (.send req handler)
+                    .body
                     (BOMInputStream.))]
-    (with-open [wtr (io/writer (File. "search-results.txt"))
+    (with-open [wtr (io/writer (File. "search-results.txt") :append true)
                 rdr (io/reader out-str)]
       (.write wtr (apply str (read-csv rdr))))))
-
-(send-batter-req query-defaults "2022-05-01" "2022-05-02" "BAL%7C")
 
 (deftest test-update-query-map
   (let [curr (count (replace-default-val {} query-defaults))
         new-vals (count (replace-default-val {"hfTeam" "hfTeam=BAL%7C"} query-defaults))]
     (is (= new-vals (+ 7 curr)))))
 
-(run-test test-update-query-map)
+(deftest test-cache-file-write
+  (let [#_(send-batter-req query-defaults "2022-05-01" "2022-05-02" "BAL%7C")
+        buf (byte-array 100)]
+    (is (true? (.exists (File. "search-results.txt"))))
+    (with-open [is (io/input-stream (File. "search-results.txt"))]
+      (.skip is 1)
+      (.read is buf 0 100))
+    (is (= (first buf) 34))))
+
+(run-test test-cache-file-write)

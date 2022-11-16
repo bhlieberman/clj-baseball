@@ -4,7 +4,8 @@
         clj-http/clj-http {:mvn/version "3.12.3"}
         org.clojure/core.async {:mvn/version "1.6.673"}
         com.cnuernber/charred {:mvn/version "1.014"}
-        commons-io/commons-io {:mvn/version "2.11.0"}}
+        commons-io/commons-io {:mvn/version "2.11.0"}
+        ring/ring-core {:mvn/version "1.9.6"}}
  :aliases
  {:dev
   {:extra-deps  {djblue/portal {:mvn/version "0.33.0"}
