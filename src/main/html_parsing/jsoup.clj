@@ -1,9 +1,9 @@
-(ns html-parsing.main 
+(ns html-parsing.jsoup 
   (:import [org.jsoup Jsoup]))
 
 (defn bbref-conn [url] (Jsoup/connect url))
 
-(def doc (.get bbref-conn))
+(defn doc [url] (.get (bbref-conn url)))
 
 (defn get-batting-table [doc] 
   (some-> doc 
