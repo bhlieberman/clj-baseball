@@ -1,6 +1,6 @@
-(ns test.main.http.client-test
+(ns com.slothrop.http.client-test
   (:require [clojure.test :refer [deftest is run-tests]]
-            [html-parsing.http.client :refer [send-split-reqs split-query]])
+            [com.slothrop.http.client :refer [send-split-reqs split-query]])
   (:import [java.time LocalDate]))
 
 (deftest test-multi-req

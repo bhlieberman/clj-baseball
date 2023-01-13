@@ -1,6 +1,14 @@
 (ns test.main.statcast.batter-test
-  (:require [clojure.test :refer [deftest is]]
-   [html-parsing.statcast.batter :refer [replace-default-vals query-defaults]]))
+  (:require [clojure.test :refer [deftest is run-test]]
+   [com.slothrop.statcast.batter :refer [replace-default-vals query-defaults make-query-map]]))
+
+(deftest make-query-map-test
+  (is (= 3 (count (make-query-map {} 
+                                {:date-start? "2022-05-01" 
+                                 :date-end? "2022-05-30" 
+                                 :team? "BAL"})))))
+
+(run-test make-query-map-test)
 
 (deftest test-update-query-map
   (let [curr (count (replace-default-vals {} query-defaults))
