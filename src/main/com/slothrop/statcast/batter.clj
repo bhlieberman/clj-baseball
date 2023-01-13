@@ -1,53 +1,44 @@
 (ns com.slothrop.statcast.batter
   (:require
-   [clojure.java.io :as io]
-   [clojure.walk :refer [postwalk-replace walk]]
+   [clojure.java.io :as io] 
    [clojure.string :as string]
    [charred.api :refer [read-csv]]
    [ring.util.response :refer [response]]
-   [http.client :refer [split-query send-split-reqs]])
-  (:import [java.io File]))
+   [com.slothrop.http.client :refer [split-query send-split-reqs]]))
 
 (def query-defaults
-  "The default sequence of query opts. Assumes nil values for all fields except :game-date-gt,
-   which receives a LocalDate object of today's date, and those which Statcast defines without adjustment."
-  '(["hfPT"] ["hfAB"] ["hfGT" "R%7C"] ["hfPR"] ["hfZ"] ["hfStadium"] ["hfBBL"]
-             ["hfNewZones"] ["hfPull"] ["hfC"] ["hfSea" "2022%7C"] ["hfSit"]
-             ["player_type" "batter"] ["hfOuts"] ["hfOpponent"] ["pitcher_throws"]
-             ["batter_stands"] ["hfSA"] ["game_date_gt"] ["game_date_lt"]
-             ["hfMo"] ["hfTeam"] ["home_road"] ["hfRO"] ["position"] ["hfInfield"]
-             ["hfOutfield"] ["hfInn"] ["hfBBT"] ["hfFlag"] ["metric_1"] ["group_by" "name"]
-             ["min_pitches" "0"] ["min_results" "0"] ["min_pas" "0"] ["sort_col" "pitches"]
-             ["player_event_sort" "api_p_release_speed"] ["sort_order" "desc"] ["type" "details"]))
+  {:sort-col "pitches" :hfSit nil :hfPT nil,
+   :hfOutfield nil :game-date-gt nil :min-pitches "0",
+   :metric-1 nil :hfSA nil :hfInn nil,
+   :hfTeam nil :game-date-lt nil :batter-stands nil,
+   :sort-order "desc" :hfOuts nil :hfStadium nil,
+   :player-event-sort "api_p_release_speed" :hfZ nil :type "details",
+   :player-type "batter" :hfGT "R%7C" :hfC nil,
+   :home-road nil :min-results "0" :hfRO nil,
+   :hfOpponent nil :pitcher-throws nil :hfPull nil,
+   :hfFlag nil :min-pas "0" :group-by "name",
+   :hfBBT nil :position nil :hfSea "2022%7C",
+   :hfInfield nil :hfMo nil :hfPR nil,
+   :hfBBL nil :hfAB nil :hfNewZones nil})
 
-(defn replace-default-vals
-  "Updates the default query map/string with provided values."
-  [kvs defaults]
-  (->> defaults
-       (postwalk-replace kvs)
-       (walk (fn [d] (let [[f & rest] d
-                           c (count rest)] (condp = f
-                                           1 (if-not (.contains f "=")
-                                             (str f "=")
-                                             f)
-                                           2 (string/join "=" rest))))#_(condp = (count %)
-                1 (if-not (.contains (first %) "=") (str (first %) "=") (first %))
-                2 (string/join "=" %)) #(string/join "&" %))))
+(defn make-query-map [defaults {:keys [date-start? date-end? team?] :as params}]
+  (cond-> defaults
+    date-start? (assoc "game-date-gt" (str "game-date-gt=" date-start?))
+    date-end? (assoc "game-date-lt" (str "game-date-lt=" date-end?))
+    team? (assoc "hfTeam" (str "hfTeam=" team?))))
+
+(defn make-query-string [kvs]
+  (letfn [(underscores [k] (-> k name (string/replace #"-" "_")))]
+    (reduce-kv (fn [acc k v]
+                 (cond-> acc
+                   (nil? v) (str (underscores k) "=&")
+                   (some? v) (str (underscores k) "=" v "&")))
+               "" kvs)))
 
 (defn send-batter-req [defaults date-start? date-end? team?]
-  (let [base-url "https://baseballsavant.mlb.com/statcast_search/csv"
-        ds (split-query date-start? date-end?)
-        new-vals {"game_date_gt" nil
-                  "game_date_lt" nil
-                  "hfTeam" nil}
-        make-query-string (map (fn [[start end]]
-                  (-> new-vals
-                      (assoc "game_date_gt" (str "game_date_gt=" start)
-                             "game_date_lt" (str "game_date_lt=" end)
-                             "hfTeam" (str "hfTeam=" team?))
-                      (replace-default-vals defaults))))
-        urls (map #(str base-url "?" % "&all=true") (make-query-string ds))
+  (let [base-url "https://baseballsavant.mlb.com/statcast_search/csv" 
+        urls (map #(str base-url "?" % "&all=true") (make-query-string defaults))
         results (send-split-reqs urls)]
-    (with-open [wtr (io/writer (File. "search-results.txt") :append true)]
+    (with-open [wtr (-> (io/file "search-results.txt") (io/writer :append true))]
       (doseq [r results]
         (->> r response :body read-csv (apply str) (.write wtr))))))
