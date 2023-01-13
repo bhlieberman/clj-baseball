@@ -1,4 +1,4 @@
-(ns main.statcast.specs
+(ns com.slothrop.statcast.specs
   (:require [clojure.spec.alpha :as s])
   (:import [java.util Date]
            [java.time Instant]))

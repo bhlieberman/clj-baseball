@@ -1,4 +1,4 @@
-(ns http.client
+(ns com.slothrop.http.client
   (:refer-clojure :exclude [reduce])
   (:require [clojure.core.async :refer [go chan alts!! >! reduce]] 
             [clj-http.client :as client]

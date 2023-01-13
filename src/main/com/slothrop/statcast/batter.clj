@@ -1,12 +1,11 @@
-(ns statcast.batter
+(ns com.slothrop.statcast.batter
   (:require
    [clojure.java.io :as io]
    [clojure.walk :refer [postwalk-replace walk]]
-   [clojure.test :refer [deftest is run-test]]
    [clojure.string :as string]
    [charred.api :refer [read-csv]]
    [ring.util.response :refer [response]]
-   [html-parsing.http.client :refer [split-query send-split-reqs]])
+   [http.client :refer [split-query send-split-reqs]])
   (:import [java.io File]))
 
 (def query-defaults
@@ -26,7 +25,12 @@
   [kvs defaults]
   (->> defaults
        (postwalk-replace kvs)
-       (walk #(condp = (count %)
+       (walk (fn [d] (let [[f & rest] d
+                           c (count rest)] (condp = f
+                                           1 (if-not (.contains f "=")
+                                             (str f "=")
+                                             f)
+                                           2 (string/join "=" rest))))#_(condp = (count %)
                 1 (if-not (.contains (first %) "=") (str (first %) "=") (first %))
                 2 (string/join "=" %)) #(string/join "&" %))))
 
@@ -46,4 +50,4 @@
         results (send-split-reqs urls)]
     (with-open [wtr (io/writer (File. "search-results.txt") :append true)]
       (doseq [r results]
-        (-> r response :body read-csv (apply str) (.write wtr))))))
+        (->> r response :body read-csv (apply str) (.write wtr))))))

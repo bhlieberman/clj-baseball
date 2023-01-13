@@ -1,4 +1,4 @@
-(ns html-parsing.jsoup 
+(ns com.slothrop.html-parsing.jsoup 
   (:import [org.jsoup Jsoup]))
 
 (defn bbref-conn [url] (Jsoup/connect url))

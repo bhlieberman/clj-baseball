@@ -1,4 +1,4 @@
-(ns player.profile
+(ns com.slothrop.player.profile
   (:require [clojure.string :as str]
             [clojure.test :refer [deftest is run-tests]]))
 
