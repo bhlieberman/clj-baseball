@@ -3,13 +3,9 @@
   (:require [clojure.core.async :refer [go chan alts!! >! reduce]] 
             [clj-http.client :as client]
             #_[clojure.java.io :as io]
-            [ring.util.response :refer [response]]
-            [portal.api :as p])
+            [ring.util.response :refer [response]])
   (:import [java.time LocalDate]
            [java.time.format DateTimeFormatter]))
-
-(def p (p/open {:launcher :vs-code}))
-(add-tap #'p/submit)
 
 (defn send-split-reqs [reqs]
   (let [c (count reqs) cs (repeatedly c chan)]
@@ -34,5 +30,7 @@
 (comment 
   (let [s (repeat 3 "https://jsonplaceholder.typicode.com/todos/1")
         results (map (comp :body response) (send-split-reqs s))]
-    (tap> results)) 
+    (tap> results))
+  
+  (tap> (split-query "2022-05-01" "2022-05-30"))
   )
