@@ -3,22 +3,47 @@
   (:import [java.util Date]
            [java.time Instant]))
 
-(s/def ::pitch-type (s/map-of #{:two-seam :four-seam
-                                :cutter :sinker
-                                :split-finger :slider
-                                :changeup :curveball
-                                :knuckle-curve :slow-curve
-                                :knuckleball :forkball
-                                :eephus :screwball
-                                :intentional-ball :pitchout
-                                :automatic-ball :unknown} boolean?))
+(s/def ::fastballs (s/map-of #{:two-seam :four-seam :cutter :sinker} true?))
 
-(s/def ::pitch-result (s/map-of #{:automatic-ball :ball :ball-in-dirt
-                                  :called-strike :foul :foul-bunt :foul-pitchout
-                                  :pitchout :hit-by-pitch :intent-ball :in-play-out
-                                  :in-play-no-out :in-play-run
-                                  :in-play-pitchout-run :missed-bunt :foul-tip
-                                  :swinging-pitchout :swinging-strike} boolean?))
+(s/def ::offspeed (s/map-of #{::split-finger ::changeup
+                              ::forkball ::screwball} true?))
+
+(s/def ::breaking (s/map-of #{:slider :curveball :knuckle-curve
+                              :slow-curve :knuckleball :eephus} true?))
+
+(s/def ::pitch-type (s/or :pitches (s/map-of #{:two-seam :four-seam
+                                               :cutter :sinker
+                                               :split-finger :slider
+                                               :changeup :curveball
+                                               :knuckle-curve :slow-curve
+                                               :knuckleball :forkball
+                                               :eephus :screwball
+                                               :intentional-ball :pitchout
+                                               :automatic-ball :unknown} boolean?)
+                          :fastballs ::fastballs
+                          :offspeed ::offspeed
+                          :breaking-balls ::breaking))
+
+(s/def ::swing-and-miss (s/map-of #{:foul-tip :swinging-pitchout
+                                    :swinging-strike :swinging-strike-blocked} true?))
+
+(s/def ::in-play (s/map-of #{:in-play-out :in-play-no-out
+                             :in-play-run :in-play-pitchout-run} true?))
+
+(s/def ::fouls (s/map-of #{:foul :foul-pitchout} true?))
+
+(s/def ::all-swings (s/and ::swing-and-miss ::in-play ::fouls))
+
+(s/def ::pitch-result (s/or :all (s/map-of #{:automatic-ball :ball :ball-in-dirt
+                                             :called-strike :foul :foul-bunt :foul-pitchout
+                                             :pitchout :hit-by-pitch :intent-ball :in-play-out
+                                             :in-play-no-out :in-play-run
+                                             :in-play-pitchout-run :missed-bunt :foul-tip
+                                             :swinging-pitchout :swinging-strike} boolean?)
+                            :swing-and-miss ::swing-and-miss
+                            :in-play ::in-play
+                            :fouls ::fouls
+                            :all-swings ::all-swings))
 
 (s/def ::batted-ball-location (s/map-of #{:pitcher :catcher :first-base :second-base
                                           :third-base :short-stop
@@ -35,20 +60,32 @@
 
 (s/def ::pitcher-handedness string?)
 
-(s/def ::game-date-after inst?)
+(s/def ::game-date-after (s/inst-in (Date/from (Instant/parse "2008-04-01T00:00:00Z")) (Date.)))
 
-(s/def ::team (s/map-of #{:blue-jays :orioles :rays
-                          :red-sox :yankees :guardians
-                          :royals :tigers :twins
-                          :white-sox :angels :astros
-                          :athletics :mariners :rangers
-                          :braves :marlins :mets
-                          :nationals :phillies :brewers
-                          :cardinals :cubs :pirates
-                          :reds :d-backs :dodgers
-                          :giants :padres :rockies
-                          :american-league
-                          :national-league} boolean?))
+(s/def ::american-league (s/map-of #{:blue-jays :orioles :rays
+                                     :red-sox :yankees :guardians
+                                     :royals :tigers :twins
+                                     :white-sox :angels :astros
+                                     :athletics :mariners :rangers} true?))
+
+(s/def ::national-league (s/map-of #{:braves :marlins :mets
+                                     :nationals :phillies :brewers
+                                     :cardinals :cubs :pirates
+                                     :reds :d-backs :dodgers
+                                     :giants :padres :rockies} true?))
+
+(s/def ::team (s/or :teams (s/map-of #{:blue-jays :orioles :rays
+                                       :red-sox :yankees :guardians
+                                       :royals :tigers :twins
+                                       :white-sox :angels :astros
+                                       :athletics :mariners :rangers
+                                       :braves :marlins :mets
+                                       :nationals :phillies :brewers
+                                       :cardinals :cubs :pirates
+                                       :reds :d-backs :dodgers
+                                       :giants :padres :rockies} boolean?)
+                    :leagues (s/map-of #{::american-league
+                                         ::national-league} true?)))
 
 (s/def ::position string?)
 
@@ -78,24 +115,51 @@
 
 (s/def ::min-pa int?)
 
-(s/def ::pa-result (s/map-of #{:single :double :triple
-                               :home-run :field-out :strikeout
-                               :strikeout-double-play :walk :double-play
-                               :field-error :gidp :fielders-choice
-                               :fielders-choice-out :batter-interference :catcher-interference
-                               :caught-stealing-2b :caught-stealing-3b :caught-stealing-home
-                               :force-out :hit-by-pitch :intentional-walk
-                               :sac-bunt :sac-bunt-double-play :sac-fly
-                               :sac-fly-double-play :triple-play} boolean?))
+(s/def ::base-hit (s/map-of #{:single :double :triple :home-run} true?))
+
+(s/def ::outs (s/map-of #{:field-out :strikeout
+                          :strikeout-double-play :double-play :gidp :fielders-choice
+                          :fielders-choice-out :force-out :sac-bunt :sac-bunt-double-play :sac-fly
+                          :sac-fly-double-play :triple-play} true?))
+
+(s/def ::pa-result (s/or :all (s/map-of #{:single :double :triple
+                                          :home-run :field-out :strikeout
+                                          :strikeout-double-play :walk :double-play
+                                          :field-error :gidp :fielders-choice
+                                          :fielders-choice-out :batter-interference :catcher-interference
+                                          :caught-stealing-2b :caught-stealing-3b :caught-stealing-home
+                                          :force-out :hit-by-pitch :intentional-walk
+                                          :sac-bunt :sac-bunt-double-play :sac-fly
+                                          :sac-fly-double-play :triple-play} boolean?)
+                         :base-hit ::base-hit
+                         :outs ::outs))
 
 (s/def ::gameday-zones (s/map-of #{:1 :2 :3
                                    :4 :5 :6
                                    :7 :8 :9
                                    :11 :12 :13 :14} boolean?))
 
-(s/def ::attack-zones (s/map-of (into #{} (map (comp keyword str) (range 1 40))) boolean?))
+(def xf (map (comp keyword str)))
 
-(s/def ::season (s/map-of (into #{} (map (comp keyword str) (range 2008 2023))) boolean?))
+(s/def ::heart (s/map-of (into #{} xf (range 1 10)) true?))
+
+(s/def ::shadow (s/map-of (into #{} xf (range 11 20)) true?))
+
+(s/def ::chase (s/map-of (into #{} xf (range 21 30)) true?))
+
+(s/def ::waste (s/map-of (into #{} xf (range 31 40)) true?))
+
+(s/def ::attack-zones (s/or :all (s/map-of (into #{} xf (range 1 40)) boolean?)
+                            :heart ::heart
+                            :shadow ::shadow
+                            :chase ::chase
+                            :waste ::waste))
+
+(s/def ::statcast-season (s/map-of (into #{} xf (range 2015 2023)) true?))
+
+(s/def ::pitch-tracking (s/map-of (into #{} xf (range 2008 2023)) true?))
+
+(s/def ::season (s/map-of (into #{} xf (range 2008 2023)) boolean?))
 
 (s/def ::outs (s/map-of #{:0 :1 :2 :3} boolean?))
 
@@ -184,5 +248,3 @@
                                 ::quality-of-contact ::month ::runners-on
                                 ::of-alignment ::batters ::pitchers
                                 ::min-results ::sort-order]))
-
-(tap> (s/exercise ::pitch-type))
