@@ -60,7 +60,7 @@
 
 (s/def ::pitcher-handedness string?)
 
-(s/def ::game-date-after (s/inst-in (Date/from (Instant/parse "2008-04-01T00:00:00Z")) (Date.)))
+(s/def ::game-date-gt (s/inst-in (Date/from (Instant/parse "2008-04-01T00:00:00Z")) (Date.)))
 
 (s/def ::american-league (s/map-of #{:blue-jays :orioles :rays
                                      :red-sox :yankees :guardians
@@ -87,7 +87,7 @@
                     :leagues (s/map-of #{::american-league
                                          ::national-league} true?)))
 
-(s/def ::position string?)
+(s/def ::position (s/nilable string?))
 
 (s/def ::inning (s/map-of #{:1 :2 :3
                             :4 :5 :6
@@ -165,7 +165,7 @@
 
 (s/def ::batter-handedness string?)
 
-(s/def ::game-date-before (s/inst-in (Date/from (Instant/parse "2008-04-01T00:00:00Z")) (Date.)))
+(s/def ::game-date-lt (s/inst-in (Date/from (Instant/parse "2008-04-01T00:00:00Z")) (Date.)))
 
 (s/def ::home-or-away string?)
 
@@ -173,7 +173,7 @@
 
 (s/def ::batted-ball-type (s/map-of #{:flyball :popup :line-drive :ground-ball} boolean?))
 
-(s/def ::min-pitches pos-int?)
+(s/def ::min-pitches int?)
 
 (s/def ::sort-by string?)
 
@@ -234,14 +234,14 @@
 
 (s/def ::min-results int?) ;; metadata
 
-(s/def ::sort-order int?) ;; metadata
+(s/def ::sort-order string?) ;; metadata
 
 (s/def ::query (s/keys :opt-un [::pitch-type ::pitch-result ::batted-ball-location
                                 ::count ::player-type ::pitcher-handedness
-                                ::game-date-after ::team ::position ::inning ::flags
+                                ::game-date-gt ::team ::position ::inning ::flags
                                 ::metric-range ::group-by ::min-pa ::pa-result
                                 ::gameday-zones ::attack-zones ::season
-                                ::outs ::batter-handedness ::game-date-before
+                                ::outs ::batter-handedness ::game-date-lt
                                 ::home-or-away ::infield-alignment ::batted-ball-type
                                 ::min-pitches ::sort-by ::season-type ::venue
                                 ::batted-ball-dir ::situation ::opponent

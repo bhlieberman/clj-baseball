@@ -1,6 +1,5 @@
-(ns com.slothrop.http.client
-  (:refer-clojure :exclude [reduce])
-  (:require [clojure.core.async :refer [go chan alts!! >! reduce]] 
+(ns com.slothrop.http.client 
+  (:require [clojure.core.async :refer [go chan alts!! >!]] 
             [clj-http.client :as client] 
             [ring.util.response :refer [response]])
   (:import [java.time LocalDate]
