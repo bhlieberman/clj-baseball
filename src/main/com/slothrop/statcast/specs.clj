@@ -60,7 +60,7 @@
 
 (s/def ::pitcher-handedness string?)
 
-(s/def ::game-date-gt (s/nilable (s/inst-in (Date/from (Instant/parse "2008-04-01T00:00:00Z")) (Date.))))
+(s/def ::game-date-gt #(instance? java.time.LocalDate %))
 
 (s/def ::american-league (s/map-of #{:blue-jays :orioles :rays
                                      :red-sox :yankees :guardians
@@ -165,7 +165,7 @@
 
 (s/def ::batter-handedness string?)
 
-(s/def ::game-date-lt (s/nilable (s/inst-in (Date/from (Instant/parse "2008-04-01T00:00:00Z")) (Date.))))
+(s/def ::game-date-lt #(instance? java.time.LocalDate %))
 
 (s/def ::home-or-away string?)
 

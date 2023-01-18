@@ -5,7 +5,7 @@
             [clojure.spec.alpha :as s] 
             [ring.util.response :refer [response]]
             [clj-http.client :as client]
-            [com.slothrop.http.client :refer [split-dates]]))
+            [main.com.slothrop.utils.dates :refer [split-dates]]))
 
 (def query-defaults
   "The default map of query parameter values. Can be changed to modify the scope
@@ -45,7 +45,7 @@
         urls (map (fn [q] (str base-url (make-query-string q) "all=true")) split-queries)]
     (client/with-async-connection-pool {}
       (for [url urls]
-        (-> url client/get response :body tap>)))))
+        (-> url client/get response :body)))))
 
 (send-batter-req {:game-date-gt "2022-05-01" 
-                  :game-date-lt "2022-05-30"})
+                  :game-date-lt "2022-05-10" :hfTeam "BAL%7C"})
