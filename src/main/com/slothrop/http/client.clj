@@ -1,5 +1,6 @@
 (ns com.slothrop.http.client 
-  (:require [clojure.core.async :refer [go chan alts!! >!]] 
+  (:require [clojure.core.async :refer [go chan alts!! >!]]
+            [clojure.spec.alpha :as s]
             [clj-http.client :as client] 
             [ring.util.response :refer [response]])
   (:import [java.time LocalDate]
@@ -16,19 +17,15 @@
           (recur (inc i) (conj result v)))
         result))))
 
-(defn split-query [date-start date-end]
+(defn split-dates [date-start date-end]
+  {:pre [(s/valid? string? date-start) (s/valid? string? date-end)]
+   :post [(s/valid? (s/coll-of (s/map-of #{:game-date-gt :game-date-lt} 
+                                #(instance? LocalDate %))) %)]}
   (let [format (DateTimeFormatter/ofPattern "yyyy-MM-dd")
         ds (-> (LocalDate/parse date-start format)
                (.datesUntil (LocalDate/parse date-end format))
                .iterator
                iterator-seq)
         split-ds (if (even? (count ds)) (partition 2 ds) (partition 3 ds))]
-    (map (juxt first last) split-ds)))
-
-(comment 
-  (let [s (repeat 3 "https://jsonplaceholder.typicode.com/todos/1")
-        results (map (comp :body response) (send-split-reqs s))]
-    (tap> results))
-  
-  (tap> (split-query "2022-05-01" "2022-05-30"))
-  )
+    (map (fn [d] (assoc {} :game-date-gt (first d)
+                        :game-date-lt (second d))) split-ds)))
