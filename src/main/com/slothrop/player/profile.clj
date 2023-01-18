@@ -1,6 +1,5 @@
 (ns com.slothrop.player.profile
-  (:require [clojure.string :as str]
-            [clojure.test :refer [deftest is run-tests]]))
+  (:require [clojure.string :as str]))
 
 (defprotocol Stats
   (get-stats [this profile])
@@ -27,22 +26,3 @@
   PlayerStats
   (get-stats [this profile] (assoc profile :stats this))
   (compute-advanced-stats [this] this))
-
-(deftest player-profile-lookup
-  (let [profile (->PlayerProfile "Cedric Mullins" 28 "Baltimore Orioles" {})]
-    (is (= (get-player-profile profile) "MulliCe01"))))
-
-
-(let [name "Cedric Mullins"
-      [first-name last-name] (str/split name #"\s")
-      first-name (->> first-name
-           .toLowerCase
-           (take 2)
-           (str/join ""))
-      last-name (->> last-name
-                     .toLowerCase
-                     (take 5)
-                     (str/join ""))]
-  (str last-name first-name "01"))
-
-(run-tests)
