@@ -19,6 +19,8 @@
 
 (s/def ::avg float?)
 
+(s/def ::obp float?)
+
 (s/def ::slg float?)
 
 (s/def ::wOBA float?)
