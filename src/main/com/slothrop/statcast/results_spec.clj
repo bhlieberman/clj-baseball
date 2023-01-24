@@ -1,0 +1,40 @@
+(ns com.slothrop.statcast.results-spec
+  (:require [clojure.spec.alpha :as s]))
+
+(def default-kvs {:stand " R", :description " ball", :sv-id " nil", 
+                  :on-2b "nil", :pfx-z " 0.89", :umpire " nil", 
+                  :fielder-8 " 621439", :pitch-number " 4", 
+                  :fielder-9 " 596146", :az " -22.972498635981147", 
+                  :fielder-2 " 680777", :on-1b "nil", :vy0 " -115.17721598782445", 
+                  :break-angle-deprecated " nil", :bat-score " 1 ", 
+                  :break-length-deprecated " nil", :ax " -11.07936096744683", 
+                  :batter " 669720", :ay " 20.96405541124397", :post-fld-score " 2 ", 
+                  :launch-speed-angle " nil", :home-score " 1", :pitch-name " Changeup", 
+                  :if-fielding-alignment " Infield shift ", :zone " 14", 
+                  :spin-dir " nil", :tfs-deprecated " nil", :pfx-x " -1.06", 
+                  :estimated-ba-using-speedangle " nil", :hc-y " nil", 
+                  :inning-topbot " Bot", :vz0 " -7.449665982818695", :events " nil", 
+                  :bb-type " nil", :hc-x "nil", :away-score " 2", :balls " 2", 
+                  :woba-denom " nil", :launch-angle " nil", :iso-value " nil", 
+                  :fielder-5 " 669304", :of-fielding-alignment " Standard ", 
+                  :type " B", :pitch-type "CH", :post-home-score " 1 ", 
+                  :fielder-7 " 624503", :game-pk " 663362", :release-spin-rate " 1898", 
+                  :game-date " 2022-05-02", :release-pos-z " 6.28", 
+                  :estimated-woba-using-speedangle " nil", :away-team " MIN", 
+                  :tfs-zulu-deprecated " nil", :outs-when-up " 1", :game-type " R", 
+                  :sz-bot " 1.53", :delta-run-exp " 0.075", :at-bat-number " 44", 
+                  :spin-rate-deprecated " nil", :p-throws " R", :release-extension " 6.9", 
+                  :hit-distance-sc " nil", :release-pos-x " -2.93", :fielder-6 " 621043", 
+                  :plate-x " 0.14", :release-pos-y " 53.57", :on-3b "nil", 
+                  :delta-home-win-exp " 0 ", :effective-speed " 80.1", :plate-z " 0.57", 
+                  :inning " 6", :pitcher " 663978", :babip-value " nil", 
+                  :post-bat-score " 1 ", :launch-speed " nil", :spin-axis " 246 ", 
+                  :sz-top " 3.24", :woba-value " nil", :hit-location " nil", 
+                  :release-speed " 79.4", :player-name " Hays, Austin", 
+                  :fielder-4 " 593871", :strikes " 1", :game-year " 2022", 
+                  :des " Austin Hays walks.", :vx0 " 8.779656029540819", 
+                  :fielder-3 " 650333", :home-team " BAL", :post-away-score " 2 ", 
+                  :fld-score " 2 "})
+
+(s/def ::pitch-name string?)
+(s/exercise ::pitch-name)
