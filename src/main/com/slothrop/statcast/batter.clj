@@ -4,6 +4,7 @@
             [clojure.edn :refer [read-string]]
             [clojure.spec.alpha :as s] 
             [ring.util.response :refer [response]]
+            [charred.api :refer [read-csv]]
             [clj-http.client :as client]
             [main.com.slothrop.utils.dates :refer [split-dates]]))
 
@@ -44,8 +45,10 @@
         base-url "https://baseballsavant.mlb.com/statcast_search/csv?"
         urls (map (fn [q] (str base-url (make-query-string q) "all=true")) split-queries)]
     (client/with-async-connection-pool {}
-      (for [url urls]
-        (-> url client/get response :body)))))
+      (into {} (for [url urls]
+         (-> url client/get response :body))))))
 
-(send-batter-req {:game-date-gt "2022-05-01" 
-                  :game-date-lt "2022-05-10" :hfTeam "BAL%7C"})
+(def test-data (send-batter-req {:game-date-gt "2022-05-01" 
+                   :game-date-lt "2022-05-03" :hfTeam "BAL%7C"}))
+
+(tap> (read-csv (:body test-data)))
