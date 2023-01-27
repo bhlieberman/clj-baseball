@@ -1,11 +1,7 @@
 {:paths ["src" "resources"]
- :deps {metosin/muuntaja {:mvn/version "0.6.8"}
-        metosin/muuntaja-form {:mvn/version "0.6.8"}
-        org.jsoup/jsoup {:mvn/version "1.15.3"}
-        clj-http/clj-http {:mvn/version "3.12.3"}
-        org.clojure/core.async {:mvn/version "1.6.673"}
-        com.cnuernber/charred {:mvn/version "1.014"}
-        commons-io/commons-io {:mvn/version "2.11.0"}
+ :deps {org.jsoup/jsoup {:mvn/version "1.15.3"}
+        clj-http/clj-http {:mvn/version "3.12.3"} 
+        com.cnuernber/charred {:mvn/version "1.014"} 
         ring/ring-core {:mvn/version "1.9.6"}
         clj-python/libpython-clj {:mvn/version "2.023"}}
  :aliases
