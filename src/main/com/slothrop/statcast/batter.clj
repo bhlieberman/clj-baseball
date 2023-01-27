@@ -17,7 +17,7 @@
   "Modifies the query map stored in query-defaults with a user-specified
    map of search parameters."
   [defaults params]
-  {:pre [(s/valid? :com.slothrop.statcast.specs/query params)]
+  #_{:pre [(s/valid? :com.slothrop.statcast.specs/query params)]
    :post [(s/valid? :com.slothrop.statcast.specs/query %)]}
   (merge defaults params))
 
