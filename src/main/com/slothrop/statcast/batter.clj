@@ -38,8 +38,3 @@
         qs (->> params (make-query-map query-defaults) make-query-string (str url))
         results (-> qs client/get response :body :body read-csv)]
     (map (partial zipmap (first results)) (rest results))))
-
-(time (send-req {:game-date-gt "2022-05-01" 
-                 :game-date-lt "2022-05-30"
-                 :hfTeam "BAL%7C"
-                 :hfPTM "FF%7C"}))
