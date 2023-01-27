@@ -4,5 +4,6 @@
 .lsp
 .portal
 .nrepl-port
+classes/
 
 src/main/user.clj
