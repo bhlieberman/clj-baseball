@@ -2,11 +2,10 @@
   (:require [clojure.java.io :as io]
             [clojure.string :as string]
             [clojure.edn :refer [read-string]]
-            [clojure.spec.alpha :as s] 
+            [clojure.spec.alpha :as s]
             [ring.util.response :refer [response]]
             [charred.api :refer [read-csv]]
-            [clj-http.client :as client]
-            [main.com.slothrop.utils.dates :refer [split-dates]]))
+            [clj-http.client :as client]))
 
 (def query-defaults
   "The default map of query parameter values. Can be changed to modify the scope
@@ -28,27 +27,19 @@
    where necessary. Arbitrary data that does not conform to the range of accepted
    values for a parameter will not modify the results."
   [kvs]
-  (letfn [(underscores [k] (-> k name (string/replace #"-" "_")))]
-    (reduce-kv (fn [acc k v]
-                 (cond-> acc
-                   (nil? v) (str (underscores k) "=&")
-                   (some? v) (str (underscores k) "=" v "&")))
-               "" kvs)))
+  (letfn [(underscores [k] (-> k name (string/replace #"-" "_")))
+          (make-qs [acc k v] (cond-> acc
+                               (nil? v) (str (underscores k) "=&")
+                               (some? v) (str (underscores k) "=" v "&")))]
+    (-> make-qs (reduce-kv "" kvs) (str "all=true"))))
 
-(defn send-batter-req 
-  "Sends the composed query to Statcast."
-  [{:keys [game-date-gt game-date-lt] :as params}] 
-  (let [split-dates (split-dates game-date-gt game-date-lt)
-        split-queries (->> split-dates
-                           (map (partial merge (dissoc params :game-date-gt :game-date-lt)))
-                           (map (partial make-query-map query-defaults)))
-        base-url "https://baseballsavant.mlb.com/statcast_search/csv?"
-        urls (map (fn [q] (str base-url (make-query-string q) "all=true")) split-queries)]
-    (client/with-async-connection-pool {}
-      (into {} (for [url urls]
-         (-> url client/get response :body))))))
+(defn send-req [params]
+  (let [url "https://baseballsavant.mlb.com/statcast_search/csv?" 
+        qs (->> params (make-query-map query-defaults) make-query-string (str url))
+        results (-> qs client/get response :body :body read-csv)]
+    (map (partial zipmap (first results)) (rest results))))
 
-(def test-data (send-batter-req {:game-date-gt "2022-05-01" 
-                   :game-date-lt "2022-05-03" :hfTeam "BAL%7C"}))
-
-(tap> (read-csv (:body test-data)))
+(time (send-req {:game-date-gt "2022-05-01" 
+                 :game-date-lt "2022-05-30"
+                 :hfTeam "BAL%7C"
+                 :hfPTM "FF%7C"}))
