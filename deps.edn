@@ -6,9 +6,12 @@
         org.clojure/core.async {:mvn/version "1.6.673"}
         com.cnuernber/charred {:mvn/version "1.014"}
         commons-io/commons-io {:mvn/version "2.11.0"}
-        ring/ring-core {:mvn/version "1.9.6"}}
+        ring/ring-core {:mvn/version "1.9.6"}
+        clj-python/libpython-clj {:mvn/version "2.023"}}
  :aliases
  {:dev
   {:extra-deps  {org.clojure/test.check {:mvn/version "1.1.1"}
-                 djblue/portal {:mvn/version "0.33.0"}
-                 rm-hull/table {:mvn/version "0.7.1"}}}}}
+                 djblue/portal {:mvn/version "0.33.0"}}}
+  :jdk-17
+  {:jvm-opts ["--add-modules" "jdk.incubator.foreign"
+              "--enable-native-access=ALL-UNNAMED"]}}}
