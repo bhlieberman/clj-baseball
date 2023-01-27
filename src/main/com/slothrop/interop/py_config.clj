@@ -1,15 +1,5 @@
-(ns main.com.slothrop.interop.py-config 
-  #_{:clj-kondo/ignore [:unused-referred-var]}
-  (:require [libpython-clj2.python
-             :refer [as-python as-jvm
-                     ->python ->jvm
-                     get-attr call-attr call-attr-kw
-                     get-item initialize!
-                     run-simple-string
-                     add-module module-dict
-                     import-module
-                     python-type
-                     dir] :as py]
+(ns com.slothrop.interop.py-config 
+  (:require [libpython-clj2.python :refer [call-attr]]
             [libpython-clj2.require :refer [require-python]]
             [com.slothrop.statcast.batter :refer [send-req]]))
 
