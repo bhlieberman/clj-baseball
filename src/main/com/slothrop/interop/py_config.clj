@@ -13,7 +13,7 @@
             [libpython-clj2.require :refer [require-python]]
             [com.slothrop.statcast.batter :refer [send-req]]))
 
-(require-python '[pandas :no-arglists :as pd]
+(require-python '[pandas :as pd]
                 '[numpy :as np])
 
 (defn create-dataframe [data] 
