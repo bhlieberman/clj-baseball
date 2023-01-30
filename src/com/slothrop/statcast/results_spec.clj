@@ -38,7 +38,7 @@
 (s/def ::hc-y nil?)
 (s/def ::inning-topbot string?)
 (s/def ::vz0 double?)
-(s/def ::events nil?)
+(s/def ::events (s/nilable string?))
 (s/def ::bb-type nil?)
 (s/def ::hc-x nil?)
 (s/def ::away-score int?)
@@ -64,7 +64,7 @@
 (s/def ::spin-rate-deprecated nil?)
 (s/def ::p-throws string?) ;; pitcher throwing hand
 (s/def ::release-extension float?)
-(s/def ::hit-distnace-sc nil?)
+(s/def ::hit-distance-sc nil?)
 (s/def ::release-pos-x float?)
 (s/def ::plate-x float?)
 (s/def ::release-pos-y double?)
@@ -89,3 +89,16 @@
 (s/def ::home-team string?)
 (s/def ::post-away-score int?)
 (s/def ::fld-score int?)
+
+(s/def ::results (s/keys :opt-un [::hit-distance-sc ::release-pos-y ::spin-rate-deprecated ::player-name ::fielder-6 ::woba-value ::plate-x ::release-pos-x 
+                                  ::release-spin-rate ::sz-top ::launch-speed ::fielder-7 ::effective-speed ::pitcher ::babip-value ::description 
+                                  ::sv-id ::woba-denom ::events ::p-throws ::home-team ::release-speed ::game-year ::vx0 ::delta-home-win-exp 
+                                  ::on-1b ::on-2b ::stand ::vy0 ::post-away-score ::az ::fielder-2 ::delta-run-exp ::zone ::hit-location ::pfx-z 
+                                  ::if-fielding-alignment ::pitch-name ::launch-speed-angle ::bat-score ::post-bat-score ::fielder-1 
+                                  ::inning ::ay ::at-bat-number ::type ::post-fld-score ::home-score ::fld-score ::iso-value ::balls 
+                                  ::pfx-x ::estimated-ba-using-speedangle ::hc-y ::away-score ::hc-x ::strikes ::away-team 
+                                  ::outs-when-up ::spin-axis ::game-type ::bb-type ::release-pos-z ::of-fielding-alignment 
+                                  ::play-description ::fielder-9 ::post-home-score ::pitch-number ::fielder-5 ::game-pk ::umpire ::vz0 
+                                  ::game-date ::inning-topbot ::release-extension ::tfs-deprecated ::spin-dir 
+                                  ::tfs-zulu-deprecated ::ax ::estimated-woba-using-speedangle 
+                                  ::sz-bot ::batter ::plate-z ::break-angle-deprecated ::launch-angle ::on-3b ::fielder-8 ::break-length-deprecated]))
