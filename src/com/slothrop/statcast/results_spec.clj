@@ -1,5 +1,6 @@
 (ns com.slothrop.statcast.results-spec
-  (:require [clojure.spec.alpha :as s]))
+  (:require [clojure.spec.alpha :as s]
+            [clojure.string :as string]))
 
 (s/def ::pitch-name string?)
 (s/def ::stand string?)
@@ -22,83 +23,84 @@
 (s/def ::ay double?)
 (s/def ::az double?)
 (s/def ::vy0 double?)
-(s/def ::break-angle-deprecated nil?)
+(s/def ::break-angle-deprecated string/blank?)
 (s/def ::bat-score int?)
-(s/def ::break-length-deprecated nil?)
+(s/def ::break-length-deprecated string/blank?)
 (s/def ::batter int?)
 (s/def ::post-fld-score int?)
-(s/def ::launch-speed-angle (s/nilable double?))
+(s/def ::launch-speed-angle (s/nilable int?))
 (s/def ::home-score int?)
 (s/def ::if-fielding-alignment string?)
 (s/def ::zone int?)
-(s/def ::spin-dir nil?)
-(s/def ::tfs-deprecated nil?)
+(s/def ::spin-dir string/blank?)
+(s/def ::tfs-deprecated string/blank?)
 (s/def ::pfx-x double?)
-(s/def ::estimated-ba-using-speedangle nil?)
-(s/def ::hc-y nil?)
+(s/def ::estimated-ba-using-speedangle (s/nilable float?))
+(s/def ::hc-y (s/nilable float?))
 (s/def ::inning-topbot string?)
 (s/def ::vz0 double?)
 (s/def ::events (s/nilable string?))
-(s/def ::bb-type nil?)
-(s/def ::hc-x nil?)
+(s/def ::bb-type string?)
+(s/def ::hc-x (s/nilable float?))
 (s/def ::away-score int?)
 (s/def ::balls int?)
-(s/def ::woba-denom nil?)
-(s/def ::launch-angle nil?)
-(s/def ::iso-value nil?)
+(s/def ::woba-denom (s/nilable int?))
+(s/def ::launch-angle int?)
+(s/def ::iso-value (s/nilable int?))
 (s/def ::of-fielding-alignment string?)
 (s/def ::type string?) ;; what is this, breaking ball?
 (s/def ::post-home-score int?)
 (s/def ::game-pk int?)
 (s/def ::release-spin-rate int?)
-(s/def ::game-date #(instance? java.time.LocalDate %))
+(s/def ::game-date string?)
 (s/def ::release-pos-z float?)
-(s/def ::estimated-woba-using-speedangle nil?)
+(s/def ::estimated-woba-using-speedangle (s/nilable float?))
 (s/def ::away-team string?)
-(s/def ::tfs-zulu-deprecated nil?)
+(s/def ::tfs-zulu-deprecated string/blank?)
 (s/def ::outs-when-up int?)
 (s/def ::game-type string?) ;; regular or postseason
 (s/def ::sz-bot double?)
 (s/def ::delta-run-exp double?)
 (s/def ::at-bat-number int?)
-(s/def ::spin-rate-deprecated nil?)
+(s/def ::spin-rate-deprecated string/blank?)
 (s/def ::p-throws string?) ;; pitcher throwing hand
 (s/def ::release-extension float?)
-(s/def ::hit-distance-sc nil?)
+(s/def ::hit-distance-sc int?)
 (s/def ::release-pos-x float?)
 (s/def ::plate-x float?)
 (s/def ::release-pos-y double?)
-(s/def ::delta-home-win-exp int?)
+(s/def ::delta-home-win-exp (s/nilable int?))
 (s/def ::effective-speed float?)
 (s/def ::plate-z float?)
 (s/def ::inning int?)
 (s/def ::pitcher int?)
-(s/def ::babip-value nil?)
+(s/def ::babip-value (s/nilable int?))
 (s/def ::post-bat-score int?)
-(s/def ::launch-speed nil?)
+(s/def ::launch-speed float?)
 (s/def ::spin-axis int?)
 (s/def ::sz-top float?)
-(s/def ::woba-value nil?)
+(s/def ::woba-value (s/nilable float?))
 (s/def ::hit-location (s/nilable string?))
-(s/def ::release-speed float?)
+(s/def ::release-speed (s/nilable int?))
 (s/def ::player-name string?)
 (s/def ::strikes int?)
-(s/def ::game-year #(instance? java.time.Year %))
+(s/def ::game-year string?)
 (s/def ::play-description string?)
 (s/def ::vx0 double?)
 (s/def ::home-team string?)
 (s/def ::post-away-score int?)
 (s/def ::fld-score int?)
 
-(s/def ::results (s/keys :opt-un [::hit-distance-sc ::release-pos-y ::spin-rate-deprecated ::player-name ::fielder-6 ::woba-value ::plate-x ::release-pos-x 
-                                  ::release-spin-rate ::sz-top ::launch-speed ::fielder-7 ::effective-speed ::pitcher ::babip-value ::description 
-                                  ::sv-id ::woba-denom ::events ::p-throws ::home-team ::release-speed ::game-year ::vx0 ::delta-home-win-exp 
-                                  ::on-1b ::on-2b ::stand ::vy0 ::post-away-score ::az ::fielder-2 ::delta-run-exp ::zone ::hit-location ::pfx-z 
-                                  ::if-fielding-alignment ::pitch-name ::launch-speed-angle ::bat-score ::post-bat-score ::fielder-1 
-                                  ::inning ::ay ::at-bat-number ::type ::post-fld-score ::home-score ::fld-score ::iso-value ::balls 
-                                  ::pfx-x ::estimated-ba-using-speedangle ::hc-y ::away-score ::hc-x ::strikes ::away-team 
-                                  ::outs-when-up ::spin-axis ::game-type ::bb-type ::release-pos-z ::of-fielding-alignment 
-                                  ::play-description ::fielder-9 ::post-home-score ::pitch-number ::fielder-5 ::game-pk ::umpire ::vz0 
-                                  ::game-date ::inning-topbot ::release-extension ::tfs-deprecated ::spin-dir 
-                                  ::tfs-zulu-deprecated ::ax ::estimated-woba-using-speedangle 
+(s/def ::results (s/keys :opt-un [::hit-distance-sc ::release-pos-y ::spin-rate-deprecated ::player-name ::fielder-6 ::woba-value ::plate-x ::release-pos-x
+                                  ::release-spin-rate ::sz-top ::launch-speed ::fielder-7 ::effective-speed ::pitcher ::babip-value ::description
+                                  ::sv-id ::woba-denom ::events ::p-throws ::home-team ::release-speed ::game-year ::vx0 ::delta-home-win-exp
+                                  ::on-1b ::on-2b ::stand ::vy0 ::post-away-score ::az ::fielder-2 ::delta-run-exp ::zone ::hit-location ::pfx-z
+                                  ::if-fielding-alignment ::pitch-name ::launch-speed-angle ::bat-score ::post-bat-score ::fielder-1
+                                  ::inning ::ay ::at-bat-number ::type ::post-fld-score ::home-score ::fld-score ::iso-value ::balls
+                                  ::pfx-x ::estimated-ba-using-speedangle ::hc-y ::away-score ::hc-x ::strikes ::away-team
+                                  ::outs-when-up ::spin-axis ::game-type ::bb-type ::release-pos-z ::of-fielding-alignment
+                                  ::play-description ::fielder-9 ::post-home-score ::pitch-number ::fielder-5 ::game-pk ::umpire ::vz0
+                                  ::game-date ::inning-topbot ::release-extension ::tfs-deprecated ::spin-dir
+                                  ::tfs-zulu-deprecated ::ax ::estimated-woba-using-speedangle
                                   ::sz-bot ::batter ::plate-z ::break-angle-deprecated ::launch-angle ::on-3b ::fielder-8 ::break-length-deprecated]))
+

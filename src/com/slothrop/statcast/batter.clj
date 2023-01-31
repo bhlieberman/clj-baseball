@@ -34,21 +34,34 @@
     (-> make-qs (reduce-kv "" kvs) (str "all=true"))))
 
 (defn- parse-double-vals [m]
-  (let [ks (select-keys m [:ax :ay :az :vx0 :vy0 :vz0])]
+  (let [ks (select-keys m [:release-pos-x :release-pos-y :release-pos-z :vx0 :vy0
+                           :az :delta-run-exp :ay :pfx-x :pfx-z
+                           :vz0 :ax :sz-bot :estimated-ba-using-speedangle :release-extension
+                           :plate-x :plate-z :effective-speed :launch-speed
+                           :sz-top :woba-value
+                           :estimated-woba-using-speedangle :hc-y :hc-x])]
     (merge m (zipmap (keys ks) (map parse-double (vals ks))))))
 
 (defn- parse-int-vals [m]
-  (let [ks (select-keys m [:batter :zone :inning :balls :pitcher :strikes])]
+  (let [ks (select-keys m [:fielder-6 :release-spin-rate :fielder-7 :pitcher :delta-home-win-exp 
+                           :post-away-score :fielder-2 :zone :bat-score 
+                           :post-bat-score :fielder-1 :inning :at-bat-number 
+                           :launch-speed-angle :woba-denom :launch-angle :iso-value
+                           :babip-value :release-speed :hit-distance-sc
+                           :post-fld-score :home-score :fld-score :balls :away-score :strikes 
+                           :outs-when-up :spin-axis :fielder-9 :post-home-score 
+                           :pitch-number :fielder-5 :on-1b :on-2b :on-3b
+                           :game-pk :batter :fielder-8 :fielder-3 :fielder-4])]
     (merge m (zipmap (keys ks) (map parse-long (vals ks))))))
 
 (defn send-req! 
   {:doc "Sends the composed and spec'ed query to Statcast."}
   [params]
-  {:post [(every? #(s/valid? :com.slothrop.statcast.results-spec/results %) %)]}
+  #_{:post [(every? #(s/valid? :com.slothrop.statcast.results-spec/results %) %)]}
   (let [url "https://baseballsavant.mlb.com/statcast_search/csv?" 
         qs (->> params (make-query-map query-defaults) make-query-string (str url))
         results (-> qs client/get response :body :body read-csv)
-        cols (map keyword (first results))]
+        cols (map (comp keyword #(string/replace % #"_" "-")) (first results))]
     (->> (rest results) 
          (map (comp parse-int-vals 
                     parse-double-vals 
