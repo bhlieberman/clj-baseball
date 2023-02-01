@@ -26,4 +26,4 @@ This is an experimental feature, but for now basic DataFrames are available than
 
 ## Portal
 
-Pandas is a very powerful tool for tabular analysis, but its API can be somewhat difficult to manage. In the near future, I may investigate the `panthera` library for providing more idiomatic Clojure support for DFs. For now, however, I intend for users of this library to leverage Clojure's functional and data-driven approach to inspect the data provided by the Statcast API. One outstanding tool for this is (Portal)[https://github.com/djblue/portal], which offers many different viewing options, including tables. I highly recommend it. 
+Pandas is a very powerful tool for tabular analysis, but its API can be somewhat difficult to manage. In the near future, I may investigate the `panthera` library for providing more idiomatic Clojure support for DFs. For now, however, I intend for users of this library to leverage Clojure's functional and data-driven approach to inspect the data provided by the Statcast API. One outstanding tool for this is [Portal](https://github.com/djblue/portal), which offers many different viewing options, including tables. I highly recommend it. 
