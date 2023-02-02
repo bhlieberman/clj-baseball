@@ -1,0 +1,17 @@
+{:pitch-type
+ {:curveball "CUKC"
+  :slider "SL"
+  :four-seam "FF"
+  :two-seam "SIFT"
+  :cutter "FC"
+  :split-finger "FS"
+  :changeup "CH"}
+ :batted-ball-location {:pitcher 1
+                        :catcher 2
+                        :first-base 3
+                        :second-base 4
+                        :third-base 5 
+                        :short-stop 6
+                        :left-field 7
+                        :center-field 8
+                        :right-field 9}}
