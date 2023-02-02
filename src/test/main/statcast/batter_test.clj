@@ -1,25 +1,19 @@
 (ns test.main.statcast.batter-test
-  (:require [clojure.test :refer [deftest is run-test]]
-   [com.slothrop.statcast.batter :refer [replace-default-vals query-defaults make-query-map]]))
+  (:require [clojure.test :refer [deftest is run-test run-tests]]
+            [clojure.spec.alpha :as s]
+            [com.slothrop.statcast.specs :as-alias stats]
+            [com.slothrop.statcast.batter :refer [query-defaults make-query-map]]))
 
-(deftest make-query-map-test
-  (is (= 3 (count (make-query-map {} 
-                                {:date-start? "2022-05-01" 
-                                 :date-end? "2022-05-30" 
-                                 :team? "BAL"})))))
+(deftest build-team-sets
+  (is (= true (s/valid? ::stats/team #{:orioles :yankees}))))
 
-(run-test make-query-map-test)
+(deftest build-query-map
+  (is (= (identity query-defaults) (s/conform ::stats/query query-defaults))))
 
-(deftest test-update-query-map
-  (let [curr (count (replace-default-vals {} query-defaults))
-        new-vals (count (replace-default-vals {"hfTeam" "hfTeam=BAL%7C"} query-defaults))]
-    (is (= new-vals (+ 7 curr)))))
+(deftest test-game-dates
+  (is (and (s/valid? ::stats/game-date-lt (java.time.LocalDate/now))
+           (s/valid? ::stats/game-date-lt (str (java.time.LocalDate/now))))))
 
-(deftest test-update-query-map-too
-  (let [to-update {"game_date_gt" nil
-                   "game_date_lt" nil
-                   "hfTeam" "BAL%7C"}
-        new-qs (-> to-update
-                   (assoc "game_date_gt" "game_date_gt=2022-05-01" "game_date_lt" "game_date_lt=2022-07-01")
-                   (replace-default-vals query-defaults))]
-    (is (= 2 (count (re-seq #"game_date_\w{2}=\d{4}[-\d{2}]+" new-qs))))))
+(s/explain ::stats/query query-defaults)
+
+(run-tests)
