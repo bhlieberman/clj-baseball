@@ -3,51 +3,51 @@
   (:import [java.util Date]
            [java.time Instant]))
 
-(s/def ::fastballs (s/map-of #{:two-seam :four-seam :cutter :sinker} true?))
+(s/def ::fastballs (s/coll-of #{:two-seam :four-seam :cutter :sinker} :distinct true))
 
-(s/def ::offspeed (s/map-of #{::split-finger ::changeup
-                              ::forkball ::screwball} true?))
+(s/def ::offspeed (s/coll-of #{::split-finger ::changeup
+                               ::forkball ::screwball} :distinct true))
 
-(s/def ::breaking (s/map-of #{:slider :curveball :knuckle-curve
-                              :slow-curve :knuckleball :eephus} true?))
+(s/def ::breaking (s/coll-of #{:slider :curveball :knuckle-curve
+                               :slow-curve :knuckleball :eephus} :distinct true))
 
-(s/def ::pitch-type (s/or :pitches (s/map-of #{:two-seam :four-seam
-                                               :cutter :sinker
-                                               :split-finger :slider
-                                               :changeup :curveball
-                                               :knuckle-curve :slow-curve
-                                               :knuckleball :forkball
-                                               :eephus :screwball
-                                               :intentional-ball :pitchout
-                                               :automatic-ball :unknown} boolean?)
+(s/def ::pitch-type (s/or :pitches (s/coll-of #{:two-seam :four-seam
+                                                :cutter :sinker
+                                                :split-finger :slider
+                                                :changeup :curveball
+                                                :knuckle-curve :slow-curve
+                                                :knuckleball :forkball
+                                                :eephus :screwball
+                                                :intentional-ball :pitchout
+                                                :automatic-ball :unknown} :distinct true)
                           :fastballs ::fastballs
                           :offspeed ::offspeed
                           :breaking-balls ::breaking))
 
-(s/def ::swing-and-miss (s/map-of #{:foul-tip :swinging-pitchout
-                                    :swinging-strike :swinging-strike-blocked} true?))
+(s/def ::swing-and-miss (s/coll-of #{:foul-tip :swinging-pitchout
+                                     :swinging-strike :swinging-strike-blocked} :distinct true))
 
-(s/def ::in-play (s/map-of #{:in-play-out :in-play-no-out
-                             :in-play-run :in-play-pitchout-run} true?))
+(s/def ::in-play (s/coll-of #{:in-play-out :in-play-no-out
+                              :in-play-run :in-play-pitchout-run} :distinct true))
 
-(s/def ::fouls (s/map-of #{:foul :foul-pitchout} true?))
+(s/def ::fouls (s/coll-of #{:foul :foul-pitchout} :distinct true))
 
 (s/def ::all-swings (s/and ::swing-and-miss ::in-play ::fouls))
 
-(s/def ::pitch-result (s/or :all (s/map-of #{:automatic-ball :ball :ball-in-dirt
-                                             :called-strike :foul :foul-bunt :foul-pitchout
-                                             :pitchout :hit-by-pitch :intent-ball :in-play-out
-                                             :in-play-no-out :in-play-run
-                                             :in-play-pitchout-run :missed-bunt :foul-tip
-                                             :swinging-pitchout :swinging-strike} boolean?)
+(s/def ::pitch-result (s/or :all (s/and :automatic-ball :ball :ball-in-dirt
+                                        :called-strike :foul :foul-bunt :foul-pitchout
+                                        :pitchout :hit-by-pitch :intent-ball :in-play-out
+                                        :in-play-no-out :in-play-run
+                                        :in-play-pitchout-run :missed-bunt :foul-tip
+                                        :swinging-pitchout :swinging-strike)
                             :swing-and-miss ::swing-and-miss
                             :in-play ::in-play
                             :fouls ::fouls
                             :all-swings ::all-swings))
 
-(s/def ::batted-ball-location (s/map-of #{:pitcher :catcher :first-base :second-base
-                                          :third-base :short-stop
-                                          :left-field :center-field :right-field} boolean?))
+(s/def ::batted-ball-location (s/coll-of #{:pitcher :catcher :first-base :second-base
+                                           :third-base :short-stop
+                                           :left-field :center-field :right-field} :distinct true))
 
 (s/def ::count (s/map-of #{:0-0 :0-1 :0-2
                            :1-0 :1-1 :1-2
@@ -60,32 +60,37 @@
 
 (s/def ::pitcher-handedness string?)
 
-(s/def ::game-date-gt #(instance? java.time.LocalDate %))
+(s/def ::game-date-gt (s/nilable (s/or :as-str string? :as-date #(instance? java.time.LocalDate %))))
 
-(s/def ::american-league (s/map-of #{:blue-jays :orioles :rays
-                                     :red-sox :yankees :guardians
-                                     :royals :tigers :twins
-                                     :white-sox :angels :astros
-                                     :athletics :mariners :rangers} true?))
-
-(s/def ::national-league (s/map-of #{:braves :marlins :mets
-                                     :nationals :phillies :brewers
-                                     :cardinals :cubs :pirates
-                                     :reds :d-backs :dodgers
-                                     :giants :padres :rockies} true?))
-
-(s/def ::team (s/or :teams (s/map-of #{:blue-jays :orioles :rays
+(s/def ::american-league (s/coll-of  #{:blue-jays :orioles :rays
                                        :red-sox :yankees :guardians
                                        :royals :tigers :twins
                                        :white-sox :angels :astros
-                                       :athletics :mariners :rangers
-                                       :braves :marlins :mets
-                                       :nationals :phillies :brewers
-                                       :cardinals :cubs :pirates
-                                       :reds :d-backs :dodgers
-                                       :giants :padres :rockies} boolean?)
-                    :leagues (s/map-of #{::american-league
-                                         ::national-league} true?)))
+                                       :athletics :mariners :rangers}
+                                     :kind set?
+                                     :distinct true
+                                     :count 15))
+
+(s/def ::national-league (s/coll-of #{:braves :marlins :mets
+                                      :nationals :phillies :brewers
+                                      :cardinals :cubs :pirates
+                                      :reds :d-backs :dodgers
+                                      :giants :padres :rockies}
+                                    :kind set?
+                                    :distinct true
+                                    :count 15))
+
+(s/def ::team (s/or :teams (s/coll-of #{:blue-jays :orioles :rays
+                                        :red-sox :yankees :guardians
+                                        :royals :tigers :twins
+                                        :white-sox :angels :astros
+                                        :athletics :mariners :rangers
+                                        :braves :marlins :mets
+                                        :nationals :phillies :brewers
+                                        :cardinals :cubs :pirates
+                                        :reds :d-backs :dodgers
+                                        :giants :padres :rockies} :kind set?)
+                    :leagues (s/or :al ::american-league :nl ::national-league)))
 
 (s/def ::position (s/nilable string?))
 
@@ -165,7 +170,7 @@
 
 (s/def ::batter-handedness string?)
 
-(s/def ::game-date-lt #(instance? java.time.LocalDate %))
+(s/def ::game-date-lt (s/nilable (s/or :as-str string? :as-date #(instance? java.time.LocalDate %))))
 
 (s/def ::home-or-away string?)
 
