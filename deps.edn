@@ -1,13 +1,17 @@
 {:paths ["src" "resources"]
  :deps {org.jsoup/jsoup {:mvn/version "1.15.3"}
-        clj-http/clj-http {:mvn/version "3.12.3"} 
-        com.cnuernber/charred {:mvn/version "1.014"} 
-        ring/ring-core {:mvn/version "1.9.6"}
-        clj-python/libpython-clj {:mvn/version "2.023"}}
- :aliases
- {:dev
-  {:extra-deps  {org.clojure/test.check {:mvn/version "1.1.1"}
-                 djblue/portal {:mvn/version "0.33.0"}}}
+        clj-http/clj-http {:mvn/version "3.12.3"}
+        com.cnuernber/charred {:mvn/version "1.014"}
+        ring/ring-core {:mvn/version "1.9.6"}}
+ :aliases 
+ {:build 
+  {:extra-deps {io.github.clojure/tools.build {:git/tag "v0.9.3" :git/sha "e537cd1"}}}
+  :dev
+  {:extra-deps  {org.clojure/test.check {:mvn/version "1.1.1"}}}
   :jdk-17
   {:jvm-opts ["--add-modules" "jdk.incubator.foreign"
-              "--enable-native-access=ALL-UNNAMED"]}}}
+              "--enable-native-access=ALL-UNNAMED"]}
+  :python
+  {:extra-deps {clj-python/libpython-clj {:mvn/version "2.023"}}}
+  :portal 
+  {:extra-deps {djblue/portal {:mvn/version "0.33.0"}}}}}
