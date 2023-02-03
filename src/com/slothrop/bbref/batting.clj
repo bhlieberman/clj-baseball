@@ -1,11 +1,13 @@
 (ns com.slothrop.bbref.batting
   (:import [org.jsoup Jsoup]))
 
+(set! *warn-on-reflection* true)
+
 (defn bbref-conn [url] (Jsoup/connect url))
 
 (defn doc [url] (.get (bbref-conn url)))
 
-(defn get-batting-table [doc] 
+(defn get-batting-table [^org.jsoup.nodes.Document doc] 
   (some-> doc 
       (.getElementById "batting_standard")
       .children))
@@ -19,6 +21,6 @@
                 (mapcat identity)
                 (filter (complement #{"Standard" "Batting"}))))
 
-(def cols (->> doc data (transduce str->cols conj)))
+(defn cols [doc] (->> doc data (transduce str->cols conj)))
 
-(def rows (into [] (eduction (map vec) (drop 1) data)))
+(defn rows [data] (into [] (eduction (map vec) (drop 1) data)))
