@@ -1,5 +1,6 @@
 (ns test.main.com.slothrop.sabermetrics.formulas-test
   (:require [clojure.test :refer [deftest is testing run-tests]]
+            [clojure.spec.alpha :as s]
             [com.slothrop.sabermetrics.formulas :as formulas]))
 
 (def test-data
@@ -28,22 +29,25 @@
     (let [event-map (assoc test-data :outcome/type :outcome/walk)]
       (is (instance? clojure.lang.IPersistentMap
                      (formulas/at-bat-outcome event-map)))
-      (is (and (-> event-map
-                   formulas/at-bat-outcome
-                   :walk-rate
-                   float?)
-               (-> event-map
-                   formulas/at-bat-outcome
-                   :walks
-                   (= 48)))))))
+      (is (->> event-map
+               formulas/at-bat-outcome
+               #(juxt [:walk-rate :bb])
+               (fn [[walk-rate bb]] (and (float? bb)
+                                         (= walk-rate 48))))))))
 
 (deftest exception-throws-on-spec-fail-test
   (testing "that an event failing spec will cause an exception to be thrown"
     (let [event-map (-> test-data
                         (assoc :outcome/type :outcome/walk)
                         (dissoc :com.slothrop.sabermetrics.formulas/bb))]
-      (is (= "exception thrown" (try (formulas/dispatch-f event-map) 
-                 (catch RuntimeException _
-                   "exception thrown")))))))
+      (is (= "failed spec"
+           (try (formulas/dispatch-f (s/conform :outcome/outcome event-map))
+                (catch clojure.lang.ExceptionInfo e
+                  (-> e ex-data :cause))))))))
+
+(deftest add-walk-rate-test
+  (testing "that the walk rate is assoc'd into the map of stats"
+    (let [event-map (assoc test-data :outcome/type :outcome/walk)]
+      (is (-> event-map formulas/at-bat-outcome :walk-rate some?)))))
 
 (run-tests)

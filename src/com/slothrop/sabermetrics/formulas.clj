@@ -17,7 +17,7 @@
 (defmulti at-bat :outcome/type)
 ;; the batter walks (spec)
 (defmethod at-bat :outcome/walk [_]
-  (s/keys :req [::bb ::pa ::k]))
+  (s/keys :req-un [::bb ::pa ::k]))
 
 ;; the batter strikes out (spec)
 (defmethod at-bat :outcome/k [_]
@@ -48,24 +48,25 @@
 
 ;; helper fn to compute on-base percentage
 (defn obp [{::keys [h bb hbp ab sf]}]
-  (/ (+ h bb hbp) (+ ab bb hbp sf)))
+  (float (/ (+ h bb hbp) (+ ab bb hbp sf))))
 
 ;; helper fn to compute slugging percentage
 (defn slugging [{::keys [singles doubles triples home-runs ab]}]
-  (/ (+ singles doubles triples home-runs) ab))
+  (float (/ (+ singles doubles triples home-runs) ab)))
 
 
 ;; dispatches the correct calculation fn based on outcome type
 (defmulti at-bat-outcome (fn [m] (:outcome/type m)))
 
-(defmethod at-bat-outcome :outcome/walk [v] {:walks (inc (::bb v)) 
-                                             :walk-rate (bb-rate v)})
+(defmethod at-bat-outcome :outcome/walk [v]
+  (merge v {:walks (inc (::bb v)) :walk-rate (bb-rate v)}))
 
-(defmethod at-bat-outcome :outcome/k [v] {:k (inc (::k v)) :k-rate (k-rate v)})
+(defmethod at-bat-outcome :outcome/k [v]
+  (merge v {:k (inc (::k v)) :k-rate (k-rate v)}))
 
 (defmethod at-bat-outcome :outcome/single [v]
   (let [singles (inc (::singles v)) avg (/ (::hits v) (::ab v))]
-    {:singles singles :batting-average avg}))
+    (merge v {:singles singles :batting-average avg})))
 
 ;; dispatches the above multimethods when data passes spec
 ;; or else throws an exception
@@ -75,4 +76,4 @@
   (at-bat-outcome v))
 
 (defmethod dispatch-f clojure.lang.Keyword [_]
-  (throw (ex-info "Did not pass spec :outcome/outcome" {})))
+  (throw (ex-info "Did not pass spec :outcome/outcome" {:cause "failed spec"})))
