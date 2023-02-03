@@ -38,7 +38,7 @@
 (s/def :outcome/outcome (s/multi-spec at-bat :outcome))
 
 ;; helper fn to compute batting average
-(defn batting-avg [{::keys [h ab]}] (/ h ab))
+(defn batting-avg [{::keys [h ab]}] (float (/ h ab)))
 
 ;; helper fn to compute strikeout rate
 (defn k-rate [{::keys [k pa]}] (float (/ k pa)))
@@ -71,7 +71,7 @@
 ;; or else throws an exception
 (defmulti dispatch-f class)
 
-(defmethod dispatch-f clojure.lang.PersistentArrayMap [v]
+(defmethod dispatch-f clojure.lang.IPersistentMap [v]
   (at-bat-outcome v))
 
 (defmethod dispatch-f clojure.lang.Keyword [_]
