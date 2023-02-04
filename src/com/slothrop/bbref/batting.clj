@@ -18,10 +18,10 @@
 
 (defn html->str
   {:doc "Creates a string representation of tabular data provided as a Document."}
-  [^org.jsoup.nodes.Document doc]
+  [^org.jsoup.select.Elements doc]
   (->> doc .text (re-seq #"\w+") (partition 32)))
 
-(defn data [doc] (-> doc get-batting-table html->str))
+(defn data [d] (-> d doc get-batting-table html->str))
 
 (def str->cols
   "A transducer to filter column names from the raw HTML text string."
