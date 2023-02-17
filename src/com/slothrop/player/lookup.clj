@@ -1,42 +1,23 @@
 (ns com.slothrop.player.lookup
-  (:require [cognitect.aws.client.api :as aws]
-            [cognitect.aws.credentials :as creds]
-            [clojure.pprint :as pp]
-            [clojure.java.io :as jio]
-            [charred.api :refer [read-csv]]))
-
-(def s3-client (aws/client {:api :s3
-                            :credentials-provider
-                            (creds/profile-credentials-provider "jamf")}))
-
-(aws/invoke s3-client {:op :CreateBucket
-                       :request {:Bucket "clj-baseball"
-                                 :ACL "public-read"
-                                 :CreateBucketConfiguration
-                                 {:LocationConstraint "us-west-2"}}})
-
-(aws/invoke s3-client {:op :PutObject
-                       :request {:ACL "public-read"
-                                 :Bucket "clj-baseball"
-                                 :Key "lookup-table"
-                                 :ContentType "text/plain"
-                                 :Body (jio/input-stream "/home/slothrop/Downloads/lookup-table.csv")}})
+  (:require [charred.api :refer [read-csv]]
+            [clojure.string :as string]
+            [clj-http.client :as client]))
 
 (def lookup-table
   (->>
-   {:op :GetObject
-    :request {:Bucket "clj-baseball"
-              :Key "lookup-table"}}
-   (aws/invoke s3-client)
-   :Body
+   (client/get "https://clj-baseball.s3.us-west-2.amazonaws.com/lookup-table")
+   :body
    read-csv))
 
-(def keep-cols (keep (fn [[& x]] (map (partial nth x) 
+(def keep-cols (keep (fn [[& x]] (map (partial nth x)
                                       (conj (into [] (range 1 11)) 15)))))
 
 (defmulti player-profile identity)
-(defmethod player-profile :cols [_] (mapcat identity (eduction (take 1) keep-cols lookup-table)))
+(defmethod player-profile :cols [_] (into [] cat (sequence (comp (take 1) keep-cols) lookup-table)))
 (defmethod player-profile :rows [_] (transduce (comp (drop 1) keep-cols) conj lookup-table))
 
-(player-profile :cols)
-(player-profile :rows)
+(def filtered-columns (map (comp keyword string/lower-case) (player-profile :cols)))
+(def rows (player-profile :rows))
+(def table (transduce (map (partial zipmap filtered-columns)) conj rows))
+
+(:brefid (first table))
