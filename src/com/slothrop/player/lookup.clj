@@ -31,8 +31,12 @@
    :Body
    read-csv))
 
-(def keep-cols (keep (fn [[& x]] (map (partial nth x) (range 1 11)))))
+(def keep-cols (keep (fn [[& x]] (map (partial nth x) 
+                                      (conj (into [] (range 1 11)) 15)))))
 
-(def table-cols (mapcat identity (transduce (comp (take 1) keep-cols) 
-                                   conj lookup-table)))
+(defmulti player-profile identity)
+(defmethod player-profile :cols [_] (mapcat identity (eduction (take 1) keep-cols lookup-table)))
+(defmethod player-profile :rows [_] (transduce (comp (drop 1) keep-cols) conj lookup-table))
 
+(player-profile :cols)
+(player-profile :rows)
