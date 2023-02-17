@@ -1,4 +1,4 @@
-(ns test.main.com.slothrop.bbref.batting-test
+(ns bbref.batting-test
   (:require [clojure.test :refer [deftest is run-tests]]
             [com.slothrop.bbref.batting :as html]))
 

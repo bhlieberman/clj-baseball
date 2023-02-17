@@ -1,4 +1,4 @@
-(ns test.main.statcast.batter-test
+(ns statcast.batter-test
   (:require [clojure.test :refer [deftest is run-test run-tests]]
             [clojure.spec.alpha :as s]
             [com.slothrop.statcast.specs :as-alias stats]
