@@ -1,9 +1,6 @@
 (ns com.slothrop.player.lookup
-  (:require [charred.api :refer [read-csv]]
-            [clojure.string :as string]
-            [clj-http.client :as client]
-            [clojure.datafy :refer [datafy]]
-            [clojure.java.io :as jio]))
+  (:require [clojure.string :as string]
+            [clj-http.client :as client]))
 
 (def lookup-table (future (client/get "https://clj-baseball.s3.us-west-2.amazonaws.com/lookup-table")))
 
@@ -17,5 +14,3 @@
 (def filtered-columns (map (comp keyword string/lower-case) (player-profile :cols)))
 (def rows (player-profile :rows))
 (def table (transduce (map (partial zipmap filtered-columns)) conj rows))
-
-(:brefid (first table))
