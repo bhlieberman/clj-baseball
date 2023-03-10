@@ -1,7 +1,5 @@
 (ns com.slothrop.statcast.specs
-  (:require [clojure.spec.alpha :as s])
-  (:import [java.util Date]
-           [java.time Instant]))
+  (:require [clojure.spec.alpha :as s]))
 
 (s/def ::fastballs (s/coll-of #{:two-seam :four-seam :cutter :sinker} :distinct true))
 
@@ -94,12 +92,12 @@
 
 (s/def ::position (s/nilable string?))
 
-(s/def ::inning (s/map-of #{:1 :2 :3
+(s/def ::inning (s/coll-of #{:1 :2 :3
                             :4 :5 :6
                             :7 :8 :9
-                            :extra-innings} boolean?))
+                            :extra-innings} :kind set?))
 
-(s/def ::flags (s/map-of #{:is-putout
+(s/def ::flags (s/coll-of #{:is-putout
                            :is-basehit
                            :is-inside-the-park-hr
                            :is-out-of-the-park-hr
@@ -112,7 +110,7 @@
                            :starting-pos-player?
                            :non-starting-pos-player?
                            :is-rookie-batter
-                           :is-rookie-pitcher} boolean?))
+                           :is-rookie-pitcher} :kind set?))
 
 (s/def ::metric-range string?)
 
@@ -120,14 +118,14 @@
 
 (s/def ::min-pa int?)
 
-(s/def ::base-hit (s/map-of #{:single :double :triple :home-run} true?))
+(s/def ::base-hit (s/coll-of #{:single :double :triple :home-run} :kind set?))
 
-(s/def ::outs (s/map-of #{:field-out :strikeout
+(s/def ::outs (s/coll-of #{:field-out :strikeout
                           :strikeout-double-play :double-play :gidp :fielders-choice
                           :fielders-choice-out :force-out :sac-bunt :sac-bunt-double-play :sac-fly
-                          :sac-fly-double-play :triple-play} true?))
+                          :sac-fly-double-play :triple-play} :kind set?))
 
-(s/def ::pa-result (s/or :all (s/map-of #{:single :double :triple
+(s/def ::pa-result (s/or :all (s/coll-of #{:single :double :triple
                                           :home-run :field-out :strikeout
                                           :strikeout-double-play :walk :double-play
                                           :field-error :gidp :fielders-choice
@@ -135,38 +133,38 @@
                                           :caught-stealing-2b :caught-stealing-3b :caught-stealing-home
                                           :force-out :hit-by-pitch :intentional-walk
                                           :sac-bunt :sac-bunt-double-play :sac-fly
-                                          :sac-fly-double-play :triple-play} boolean?)
+                                          :sac-fly-double-play :triple-play} :kind set?)
                          :base-hit ::base-hit
                          :outs ::outs))
 
-(s/def ::gameday-zones (s/map-of #{:1 :2 :3
+(s/def ::gameday-zones (s/coll-of #{:1 :2 :3
                                    :4 :5 :6
                                    :7 :8 :9
-                                   :11 :12 :13 :14} boolean?))
+                                   :11 :12 :13 :14} :kind set?))
 
 (def xf (map (comp keyword str)))
 
-(s/def ::heart (s/map-of (into #{} xf (range 1 10)) true?))
+(s/def ::heart (s/coll-of (into #{} xf (range 1 10)) :kind set?))
 
-(s/def ::shadow (s/map-of (into #{} xf (range 11 20)) true?))
+(s/def ::shadow (s/coll-of (into #{} xf (range 11 20)) :kind set?))
 
-(s/def ::chase (s/map-of (into #{} xf (range 21 30)) true?))
+(s/def ::chase (s/coll-of (into #{} xf (range 21 30)) :kind set?))
 
-(s/def ::waste (s/map-of (into #{} xf (range 31 40)) true?))
+(s/def ::waste (s/coll-of (into #{} xf (range 31 40)) :kind set?))
 
-(s/def ::attack-zones (s/or :all (s/map-of (into #{} xf (range 1 40)) boolean?)
+(s/def ::attack-zones (s/or :all (s/coll-of (into #{} xf (range 1 40)) :kind set?)
                             :heart ::heart
                             :shadow ::shadow
                             :chase ::chase
                             :waste ::waste))
 
-(s/def ::statcast-season (s/map-of (into #{} xf (range 2015 2023)) true?))
+(s/def ::statcast-season (s/coll-of (into #{} xf (range 2015 2023)) :kind set?))
 
-(s/def ::pitch-tracking (s/map-of (into #{} xf (range 2008 2023)) true?))
+(s/def ::pitch-tracking (s/coll-of (into #{} xf (range 2008 2023)) :kind set?))
 
-(s/def ::season (s/map-of (into #{} xf (range 2008 2023)) boolean?))
+(s/def ::season (s/coll-of (into #{} xf (range 2008 2023)) :kind set?))
 
-(s/def ::outs (s/map-of #{:0 :1 :2 :3} boolean?))
+(s/def ::outs (s/coll-of #{:0 :1 :2 :3} :kind set?))
 
 (s/def ::batter-handedness string?)
 
@@ -174,19 +172,19 @@
 
 (s/def ::home-or-away string?)
 
-(s/def ::infield-alignment (s/map-of #{:standard :strategic :shift} boolean?))
+(s/def ::infield-alignment (s/coll-of #{:standard :strategic :shift} :kind set?))
 
-(s/def ::batted-ball-type (s/map-of #{:flyball :popup :line-drive :ground-ball} boolean?))
+(s/def ::batted-ball-type (s/coll-of #{:flyball :popup :line-drive :ground-ball} :kind set?))
 
 (s/def ::min-pitches int?)
 
 (s/def ::sort-by string?)
 
-(s/def ::season-type (s/map-of #{:regular-season :playoffs :wildcard
+(s/def ::season-type (s/coll-of #{:regular-season :playoffs :wildcard
                                  :division-series :league-championship :world-series
-                                 :spring-training :all-star} boolean?))
+                                 :spring-training :all-star} :kind set?))
 
-(s/def ::venue (s/map-of #{:az-chase-field :atl-truist-park :atl-2016-turner-field
+(s/def ::venue (s/coll-of #{:az-chase-field :atl-truist-park :atl-2016-turner-field
                            :bal-oriole-park :bos-fenway-park :chc-wrigley-field
                            :cin-gabp :cle-progressive-field :col-coors-field
                            :cws-guaranteed-rate-fld :det-comerica-park :fla-2011-hard-rock-stadium
@@ -197,28 +195,28 @@
                            :oak-oakland-coliseum :phi-citizens-bank-park :pit-pnc-park
                            :sd-petco-park :sea-t-mobile-park :sf-oracle-park
                            :stl-busch-stadium :tb-tropicana-field :tex-globe-life-field
-                           :tex-2019-globe-life-park :tor-rogers-centre :wsh-nationals-park} boolean?))
+                           :tex-2019-globe-life-park :tor-rogers-centre :wsh-nationals-park} :kind set?))
 
-(s/def ::batted-ball-dir (s/map-of #{:pull :straight-away :opposite} boolean?))
+(s/def ::batted-ball-dir (s/coll-of #{:pull :straight-away :opposite} :kind set?))
 
-(s/def ::situation (s/map-of #{:go-ahead-run-at-plate
+(s/def ::situation (s/coll-of #{:go-ahead-run-at-plate
                                :go-ahead-run-on-base
                                :tying-run-at-plate
                                :tying-run-on-base
-                               :tying-run-on-deck} boolean?))
+                               :tying-run-on-deck} :kind set?))
 
 (s/def ::opponent ::team)
 
 (s/def ::quality-of-contact (s/coll-of string?))
 
-(s/def ::month (s/map-of #{:mar-apr
+(s/def ::month (s/coll-of #{:mar-apr
                            :may
                            :jun
                            :jul
                            :aug
-                           :sep-oct} boolean?))
+                           :sep-oct} :kind set?))
 
-(s/def ::runners-on (s/map-of #{:no-runners
+(s/def ::runners-on (s/coll-of #{:no-runners
                                 :risp
                                 :runner-on-base
                                 :runner-on-1st
@@ -226,12 +224,12 @@
                                 :runner-on-3rd
                                 :runner-not-on-1st
                                 :runner-not-on-2nd
-                                :runner-not-on-3rd} boolean?))
+                                :runner-not-on-3rd} :kind set?))
 
-(s/def ::of-alignment (s/map-of #{:standard
+(s/def ::of-alignment (s/coll-of #{:standard
                                   :strategic
                                   :3-of-to-one-side-of-2b
-                                  :4th-outfielder} boolean?))
+                                  :4th-outfielder} :kind set?))
 
 (s/def ::batters string?)
 
