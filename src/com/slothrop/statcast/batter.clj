@@ -5,7 +5,8 @@
             [clojure.spec.alpha :as s]
             [ring.util.response :refer [response]]
             [charred.api :refer [read-csv]]
-            [clj-http.client :as client]))
+            [clj-http.client :as client])
+  (:import [java.net URLEncoder]))
 
 (def query-defaults
   "The default map of query parameter values. Can be changed to modify the scope
@@ -54,6 +55,9 @@
                            :game-pk :batter :fielder-8 :fielder-3 :fielder-4])]
     (merge m (zipmap (keys ks) (map parse-long (vals ks))))))
 
+(defn- encode-url-params [params]
+  (reduce (fn [m [k v]] (assoc m k (URLEncoder/encode v "utf-8"))) {} params))
+
 (defn send-req! 
   {:doc "Sends the composed and spec'ed query to Statcast."}
   [params]
@@ -66,3 +70,7 @@
          (map (comp parse-int-vals 
                     parse-double-vals 
                     (partial zipmap cols))))))
+
+(comment 
+  
+  )
