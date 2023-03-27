@@ -1,25 +1,26 @@
 (ns com.slothrop.statcast.batter
-  (:require [clojure.java.io :as io]
+  (:require #?(:clj [clojure.java.io :as io]
+               [ring.util.response :refer [response]]
+               [charred.api :refer [read-csv]]
+               [clj-http.client :as client])
+            #?(:cljs ["fs" :as fs])
             [clojure.string :as string]
             [clojure.edn :refer [read-string]]
-            [clojure.spec.alpha :as s]
-            [ring.util.response :refer [response]]
-            [charred.api :refer [read-csv]]
-            [clj-http.client :as client])
-  (:import [java.net URLEncoder]))
+            [clojure.spec.alpha :as s]))
 
 (def query-defaults
   "The default map of query parameter values. Can be changed to modify the scope
    and size of your Statcast query."
-  (with-open [rdr (-> "public/query.edn" io/resource io/reader)]
-    (read-string (slurp rdr))))
+  #?(:clj (with-open [rdr (-> "public/query.edn" io/resource io/reader)]
+            (read-string (slurp rdr)))
+     :cljs (fs/readFileSync (fn [data] (read-string data)))))
 
 (defn make-query-map
   {:doc "Modifies the query map stored in query-defaults with a user-specified
    map of search parameters."}
   [defaults params]
   #_{:pre [(s/valid? :com.slothrop.statcast.specs/query params)]
-   :post [(s/valid? :com.slothrop.statcast.specs/query %)]}
+     :post [(s/valid? :com.slothrop.statcast.specs/query %)]}
   (merge defaults params))
 
 (defn make-query-string
@@ -44,33 +45,36 @@
     (merge m (zipmap (keys ks) (map parse-double (vals ks))))))
 
 (defn- parse-int-vals [m]
-  (let [ks (select-keys m [:fielder-6 :release-spin-rate :fielder-7 :pitcher :delta-home-win-exp 
-                           :post-away-score :fielder-2 :zone :bat-score 
-                           :post-bat-score :fielder-1 :inning :at-bat-number 
+  (let [ks (select-keys m [:fielder-6 :release-spin-rate :fielder-7 :pitcher :delta-home-win-exp
+                           :post-away-score :fielder-2 :zone :bat-score
+                           :post-bat-score :fielder-1 :inning :at-bat-number
                            :launch-speed-angle :woba-denom :launch-angle :iso-value
                            :babip-value :release-speed :hit-distance-sc
-                           :post-fld-score :home-score :fld-score :balls :away-score :strikes 
-                           :outs-when-up :spin-axis :fielder-9 :post-home-score 
+                           :post-fld-score :home-score :fld-score :balls :away-score :strikes
+                           :outs-when-up :spin-axis :fielder-9 :post-home-score
                            :pitch-number :fielder-5 :on-1b :on-2b :on-3b
                            :game-pk :batter :fielder-8 :fielder-3 :fielder-4])]
     (merge m (zipmap (keys ks) (map parse-long (vals ks))))))
 
 (defn- encode-url-params [params]
-  (reduce (fn [m [k v]] (assoc m k (URLEncoder/encode v "utf-8"))) {} params))
+  (reduce-kv (fn [m k ^String v]
+               (assoc m k (some-> v #?(:clj (java.net.URLEncoder/encode "utf-8")
+                                       :cljs (js/encodeURIComponent))))) {} params))
 
-(defn send-req! 
+(defn send-req!
   {:doc "Sends the composed and spec'ed query to Statcast."}
   [params]
   #_{:post [(every? #(s/valid? :com.slothrop.statcast.results-spec/results %) %)]}
-  (let [url "https://baseballsavant.mlb.com/statcast_search/csv?" 
+  (let [url "https://baseballsavant.mlb.com/statcast_search/csv?"
         qs (->> params (make-query-map query-defaults) make-query-string (str url))
-        results (-> qs client/get response :body :body read-csv)
+        results (-> qs #?(:clj client/get response :body :body read-csv
+                          :cljs js/fetch (.then #(.log js/console %))))
         cols (map (comp keyword #(string/replace % #"_" "-")) (first results))]
-    (->> (rest results) 
-         (map (comp parse-int-vals 
-                    parse-double-vals 
+    (->> (rest results)
+         (map (comp parse-int-vals
+                    parse-double-vals
                     (partial zipmap cols))))))
 
-(comment 
-  
-  )
+(comment
+  (some->> {} (make-query-map query-defaults) encode-url-params make-query-string)
+  (-> (make-query-map query-defaults {:hfTeam nil}) (encode-url-params)))
