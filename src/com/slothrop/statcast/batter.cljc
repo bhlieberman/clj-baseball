@@ -13,7 +13,7 @@
    and size of your Statcast query."
   #?(:clj (with-open [rdr (-> "public/query.edn" io/resource io/reader)]
             (read-string (slurp rdr)))
-     :cljs (fs/readFileSync (fn [data] (read-string data)))))
+     :cljs (fs/readFile "public/query.edn" (fn [_ data] (read-string data)))))
 
 (defn make-query-map
   {:doc "Modifies the query map stored in query-defaults with a user-specified
@@ -74,7 +74,3 @@
          (map (comp parse-int-vals
                     parse-double-vals
                     (partial zipmap cols))))))
-
-(comment
-  (some->> {} (make-query-map query-defaults) encode-url-params make-query-string)
-  (-> (make-query-map query-defaults {:hfTeam nil}) (encode-url-params)))
