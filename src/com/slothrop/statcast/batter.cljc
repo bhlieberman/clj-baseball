@@ -1,12 +1,16 @@
 (ns com.slothrop.statcast.batter
-  (:require #?(:clj [clojure.java.io :as io]
-               [ring.util.response :refer [response]]
-               [charred.api :refer [read-csv]]
-               [clj-http.client :as client])
-            #?(:cljs ["fs" :as fs])
-            [clojure.string :as string]
-            [clojure.edn :refer [read-string]]
-            [clojure.spec.alpha :as s]))
+  (:require #?@(:clj [[clojure.java.io :as io]
+                      [clojure.string :as string]
+                      [clojure.edn :refer [read-string]]
+                      [clojure.spec.alpha :as s]
+                      [ring.util.response :refer [response]]
+                      [charred.api :refer [read-csv]]
+                      [clj-http.client :as client]]
+                :cljs [["fs" :as fs]
+                       [ajax.core :refer [GET]]
+                       [clojure.string :as string]
+                       [clojure.edn :refer [read-string]]
+                       [clojure.spec.alpha :as s]])))
 
 (def query-defaults
   "The default map of query parameter values. Can be changed to modify the scope
@@ -66,11 +70,24 @@
   [params]
   #_{:post [(every? #(s/valid? :com.slothrop.statcast.results-spec/results %) %)]}
   (let [url "https://baseballsavant.mlb.com/statcast_search/csv?"
-        qs (->> params (make-query-map query-defaults) make-query-string (str url))
-        results (-> qs #?(:clj client/get response :body :body read-csv
-                          :cljs js/fetch (.then #(.log js/console %))))
-        cols (map (comp keyword #(string/replace % #"_" "-")) (first results))]
-    (->> (rest results)
-         (map (comp parse-int-vals
-                    parse-double-vals
-                    (partial zipmap cols))))))
+        qs (->> params (make-query-map query-defaults) encode-url-params make-query-string (str url))
+        clj-result (fn [results] (let [cols (map (comp keyword #(string/replace % #"_" "-")) (first results))]
+                                   (->> (rest results)
+                                        (map (comp parse-int-vals
+                                                   parse-double-vals
+                                                   (partial zipmap cols))))))
+        results #?(:clj (-> qs  client/get response :body :body read-csv clj-result)
+                   :cljs (GET url {:params (->> params (make-query-map query-defaults) encode-url-params)
+                                   :handler (fn [resp] (.log js/console (str resp)))}))]
+    results))
+
+(->> {:game-date-gt "2021-04-01"} 
+     (make-query-map query-defaults)
+     encode-url-params
+     make-query-string
+     (str "https://baseballsavant.mlb.com/statcast_search/csv?")
+     client/get
+     response
+     :body
+     :body
+     read-csv)

@@ -1,0 +1,5 @@
+{:source-paths ["src"]
+ :dependencies [[cljs-ajax "0.8.4"]]
+ :builds {:lib {:target :node-library 
+                :output-to "out/libs/node/cljs-baseball.js"
+                :exports-var com.slothrop.statcast.batter/send-req!}}}
