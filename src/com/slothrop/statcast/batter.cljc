@@ -1,19 +1,18 @@
 (ns com.slothrop.statcast.batter
-  (:require #?(:clj [clojure.java.io :as io]
-               [ring.util.response :refer [response]]
-               [charred.api :refer [read-csv]]
-               [clj-http.client :as client])
-            #?(:cljs ["fs" :as fs])
+  (:require [clojure.java.io :as io]
             [clojure.string :as string]
             [clojure.edn :refer [read-string]]
-            [clojure.spec.alpha :as s]))
+            [clojure.spec.alpha :as s]
+            [ring.util.response :refer [response]]
+            [charred.api :refer [read-csv]]
+            [clj-http.client :as client])
+  (:import [java.net URLEncoder URLDecoder]))
 
 (def query-defaults
   "The default map of query parameter values. Can be changed to modify the scope
    and size of your Statcast query."
-  #?(:clj (with-open [rdr (-> "public/query.edn" io/resource io/reader)]
-            (read-string (slurp rdr)))
-     :cljs (fs/readFile "public/query.edn" (fn [_ data] (read-string data)))))
+  (with-open [rdr (-> "public/query.edn" io/resource io/reader)]
+    (read-string (slurp rdr))))
 
 (defn make-query-map
   {:doc "Modifies the query map stored in query-defaults with a user-specified
@@ -58,19 +57,21 @@
 
 (defn- encode-url-params [params]
   (reduce-kv (fn [m k ^String v]
-               (assoc m k (some-> v #?(:clj (java.net.URLEncoder/encode "utf-8")
-                                       :cljs (js/encodeURIComponent))))) {} params))
+               (assoc m k (some-> v (URLEncoder/encode "utf-8")))) {} params))
 
 (defn send-req!
   {:doc "Sends the composed and spec'ed query to Statcast."}
   [params]
   #_{:post [(every? #(s/valid? :com.slothrop.statcast.results-spec/results %) %)]}
   (let [url "https://baseballsavant.mlb.com/statcast_search/csv?"
-        qs (->> params (make-query-map query-defaults) make-query-string (str url))
-        results (-> qs #?(:clj client/get response :body :body read-csv
-                          :cljs js/fetch (.then #(.log js/console %))))
+        qs (->> params (make-query-map query-defaults) encode-url-params make-query-string (str url))
+        results (-> qs  client/get response :body :body read-csv)
         cols (map (comp keyword #(string/replace % #"_" "-")) (first results))]
     (->> (rest results)
          (map (comp parse-int-vals
                     parse-double-vals
                     (partial zipmap cols))))))
+
+(let [url "https://baseballsavant.mlb.com/statcast_search/csv?"
+      qs (->> {:game-date-gt "2022-06-01" :game-date-lt "2022-06-01"} (make-query-map query-defaults) encode-url-params make-query-string (str url))]
+  qs)

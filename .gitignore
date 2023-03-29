@@ -4,6 +4,8 @@
 .lsp
 .portal
 .nrepl-port
+.shadow-cljs
 classes/
 
 src/main/user.clj
+node_modules/
