@@ -8,6 +8,6 @@
  :home-road nil :min-results "0" :hfRO nil,
  :hfOpponent nil :pitcher-throws nil :hfPull nil,
  :hfFlag nil :min-pas "0" :group-by "name",
- :hfBBT nil :position nil :hfSea "2022|",
+ :hfBBT nil :position nil :hfSea nil ,
  :hfInfield nil :hfMo nil :hfPR nil,
  :hfBBL nil :hfAB nil :hfNewZones nil}

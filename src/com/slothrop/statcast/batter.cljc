@@ -6,7 +6,7 @@
             [ring.util.response :refer [response]]
             [charred.api :refer [read-csv]]
             [clj-http.client :as client])
-  (:import [java.net URLEncoder URLDecoder]))
+  (:import [java.net URLEncoder]))
 
 (def query-defaults
   "The default map of query parameter values. Can be changed to modify the scope
@@ -72,6 +72,3 @@
                     parse-double-vals
                     (partial zipmap cols))))))
 
-(let [url "https://baseballsavant.mlb.com/statcast_search/csv?"
-      qs (->> {:game-date-gt "2022-06-01" :game-date-lt "2022-06-01"} (make-query-map query-defaults) encode-url-params make-query-string (str url))]
-  qs)
