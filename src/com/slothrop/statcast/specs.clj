@@ -176,7 +176,7 @@
 
 (s/def ::batted-ball-type (s/coll-of #{:flyball :popup :line-drive :ground-ball} :kind set?))
 
-(s/def ::min-pitches int?)
+(s/def ::min-pitches (s/or :as-string string? :as-int int?))
 
 (s/def ::sort-by string?)
 
@@ -235,7 +235,7 @@
 
 (s/def ::pitchers string?)
 
-(s/def ::min-results int?) ;; metadata
+(s/def ::min-results (s/or :as-string string? :as-int int?)) ;; metadata
 
 (s/def ::sort-order string?) ;; metadata
 
