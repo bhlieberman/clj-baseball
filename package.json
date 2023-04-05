@@ -17,7 +17,9 @@
   },
   "homepage": "https://github.com/bhlieberman/clj-baseball#readme",
   "dependencies": {
-    "shadow-cljs": "^2.22.8",
     "xmlhttprequest": "^1.8.0"
+  },
+  "devDependencies": {
+    "shadow-cljs": "^2.22.9"
   }
 }
