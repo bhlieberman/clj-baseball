@@ -9,3 +9,4 @@ classes/
 
 src/main/user.clj
 node_modules/
+target/
