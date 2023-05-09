@@ -2,6 +2,7 @@
  :deps {org.jsoup/jsoup {:mvn/version "1.15.3"}
         clj-http/clj-http {:mvn/version "3.12.3"}
         com.cnuernber/charred {:mvn/version "1.014"}
+        techascent/tech.ml.dataset {:mvn/version "7.000-beta-38"}
         ring/ring-core {:mvn/version "1.9.6"}}
  :aliases
  {:build

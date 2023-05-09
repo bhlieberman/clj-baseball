@@ -5,6 +5,7 @@
             [clojure.spec.alpha :as s]
             [ring.util.response :refer [response]]
             [charred.api :refer [read-csv]]
+            [tech.v3.dataset :as d]
             [clj-http.client :as client])
   (:import [java.net URLEncoder]))
 
@@ -71,4 +72,3 @@
          (map (comp parse-int-vals
                     parse-double-vals
                     (partial zipmap cols))))))
-
