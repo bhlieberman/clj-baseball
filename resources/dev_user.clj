@@ -10,7 +10,8 @@
             [com.slothrop.player.lookup :refer
              #_{:clj-kondo/ignore [:unused-referred-var]}
              [lookup-player-by-mlbid table-csv]]
-            [tech.v3.dataset :as d]))
+            [tech.v3.dataset :as d])
+  (:import [org.jsoup Jsoup]))
 
 (def results (send-req! {:game-date-gt "2022-05-01"
                          :game-date-lt "2022-05-02"

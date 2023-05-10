@@ -64,7 +64,15 @@
   #_{:post [(every? #(s/valid? :com.slothrop.statcast.results-spec/results %) %)]}
   (let [url "https://baseballsavant.mlb.com/statcast_search/csv?"
         qs (->> params (make-query-map query-defaults) encode-url-params make-query-string (str url))
-        results (-> qs  (client/get {:as :stream}) :body read-csv)
+        results (some-> qs
+                        (client/get {:async? true
+                                     :as :stream}
+                                    (fn [response] response)
+                                    (fn [_] nil)) 
+                        .get 
+                        .getEntity 
+                        .getContent 
+                        read-csv)
         cols (map (comp keyword #(string/replace % #"_" "-")) (first results))]
     (->> (rest results)
          (map (comp parse-int-vals
