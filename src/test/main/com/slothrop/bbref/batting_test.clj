@@ -4,6 +4,10 @@
 
 (def url "https://www.baseball-reference.com/players/m/mullice01.shtml")
 
+(def mariano-std-pitching 
+  (let [doc (html/doc "https://www.baseball-reference.com/players/r/riverma01.shtml")]
+                            (.. doc (getElementById "pitching_standard") children)))
+
 (deftest open-connection-test
   (let [conn (html/bbref-conn url)]
     (is (instance? org.jsoup.Connection conn))))
@@ -20,3 +24,6 @@
     (is (= 30 (count data)))))
 
 (run-tests)
+
+(def mull-tables (html/doc url))
+

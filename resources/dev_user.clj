@@ -1,17 +1,15 @@
 (ns resources.dev-user
   #_{:clj-kondo/ignore [:unused-namespace]}
+  (:require [portal.api :as p]
+            [clojure.spec.alpha :as s]
+            [tech.v3.dataset :as d]
+            [com.slothrop.statcast.batter :refer [send-req!]]
+            [com.slothrop.statcast.results-spec :as rspec]
+            [com.slothrop.bbref.batting :refer [data rows]]
+            [com.slothrop.player.lookup :refer [lookup-player-by-mlbid table-csv]])
+  (:import [java.net URLEncoder]
+           [java.util.zip ZipFile]))
 
-  (:require #_[portal.api :as p]
-   #_[com.slothrop.interop.dataframes :refer #_{:clj-kondo/ignore [:unused-referred-var]}
-      [create-dataframe-from-dict
-       create-dataframe-from-records]]
-
-   [com.slothrop.statcast.batter :refer [send-req!]]
-            [com.slothrop.player.lookup :refer
-             #_{:clj-kondo/ignore [:unused-referred-var]}
-             [lookup-player-by-mlbid table-csv]]
-            [tech.v3.dataset :as d])
-  (:import [org.jsoup Jsoup]))
 
 (def results (send-req! {:game-date-gt "2022-05-01"
                          :game-date-lt "2022-05-02"

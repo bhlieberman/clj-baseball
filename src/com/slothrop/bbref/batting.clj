@@ -34,6 +34,10 @@
   {:doc "Runs the str->cols transducer to extract column names."}
   [doc] (->> doc data (transduce str->cols conj)))
 
-(defn rows 
+(defn rows
   {:doc "Returns a vector of the table rows."}
   [data] (into [] (eduction (map vec) (drop 1) data)))
+
+(def adley (doc "https://www.baseball-reference.com/players/r/rutscad01.shtml"))
+
+(.selectXpath adley "//table")

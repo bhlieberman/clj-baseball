@@ -1,5 +1,5 @@
 (ns test.main.com.slothrop.statcast.batter-spec-test
-  (:require [clojure.test :refer [deftest is run-test run-tests]]
+  (:require [clojure.test :refer [deftest is run-tests]]
             [clojure.spec.alpha :as s]
             [com.slothrop.statcast.specs :as-alias stats]
             [com.slothrop.statcast.batter :refer [query-defaults make-query-map]]))
