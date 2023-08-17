@@ -14,7 +14,8 @@
             [com.slothrop.statcast.batter :refer [send-req!]]
             [com.slothrop.statcast.results-spec :as-alias rspec]
             [com.slothrop.bbref.batting :refer [data rows]]
-            [com.slothrop.player.lookup :refer [lookup-player-by-mlbid table-csv]])
+            [com.slothrop.player.lookup :refer [lookup-player-by-mlbid table-csv]]
+            [com.slothrop.cache.cache-config :refer [DEFAULT-CACHE-DIR]])
   #_{:clj-kondo/ignore [:unused-import]}
   (:import [java.net URLEncoder URI]
            [java.nio.file Paths]
@@ -44,6 +45,7 @@
          (into []))))
 
 (comment
+  (-> DEFAULT-CACHE-DIR type javadoc)
   (javadoc org.apache.http.message.BasicHttpResponse)
   (javadoc java.net.URI)
   (doc jio/input-stream))
@@ -55,6 +57,9 @@
       (d/filter-column :events (fn [event] (= event "double")))
       :pitcher
       first
-      lookup-player-by-mlbid)
-  (def p (p/open {:launcher :vs-code}))
-  (add-tap #'p/submit))
+      lookup-player-by-mlbid))
+
+(comment #_{:clj-kondo/ignore [:clojure-lsp/unused-public-var]}
+         (def p (p/open {:launcher :vs-code}))
+
+         (add-tap #'p/submit))
