@@ -40,4 +40,4 @@
 
 (def adley (doc "https://www.baseball-reference.com/players/r/rutscad01.shtml"))
 
-(.selectXpath adley "//table")
+#_(.selectXpath adley "//table")
