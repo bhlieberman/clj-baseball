@@ -23,14 +23,11 @@
       table-csv))
 
 ;; lookup table v2 from Chadwick Bureau
-(def register (-> (client/get "https://github.com/chadwickbureau/register/archive/refs/heads/master.zip"
-                              {:async? true
-                               :as :stream}
-                              (fn [resp] resp)
-                              (fn [err] (throw (ex-info "Request for player lookup table failed" {:cause err}))))
-                  .get
-                  .getEntity
-                  .getContent))
+(def register (client/get "https://github.com/chadwickbureau/register/archive/refs/heads/master.zip"
+                          {:async? true
+                           :as :stream}
+                          (fn [resp] resp)
+                          (fn [err] (throw (ex-info "Request for player lookup table failed" {:cause err})))))
 
 (defn get-cached-register-file []
   (if (.exists (jio/file (.toUri DEFAULT-CACHE-DIR)))
@@ -41,7 +38,7 @@
 (defn register->dataset []
   (let [cached-ds (get-cached-register-file)]
     (when-not cached-ds
-      (z/zipfile->dataset-seq register))))
+      (z/zipfile->dataset-seq (.. register get getEntity getContent)))))
 
 (defn keep-cols [ds]
   (try (d/select-columns ds ["name_last" "name_first" "key_mlbam"
