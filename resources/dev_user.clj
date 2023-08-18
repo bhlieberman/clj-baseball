@@ -7,8 +7,10 @@
             [clojure.java.javadoc :refer [javadoc]]
             [clojure.java.io :as jio]
             [clojure.string :as string]
-            [clj-http.client :as client] 
+            [clj-http.client :as client]
             [tech.v3.dataset :as d]
+            [tech.v3.dataset.column-filters :as cf]
+            [tech.v3.dataset.join :as j]
             [tech.v3.dataset.zip :as z]
             [tech.v3.dataset.io.csv :as csv]
             [com.slothrop.statcast.batter :refer [send-req!]]
@@ -30,14 +32,24 @@
 (def lookup-table (lookup-table-v2))
 
 (defn get-closest-names [player-last player-first player-table]
-  (map #(.getString %) (FuzzySearch/extractTop (str player-first player-last) 
-                                               (into [] (:player_name player-table)) 
-                                               5)))
+  (let [player-names (into [] (:player_name player-table))
+        most-similar {:player_name
+                      (map #(.getString %) (FuzzySearch/extractTop (str player-first player-last)
+                                                                   player-names
+                                                                   5))}]
+    (j/pd-merge (d/->dataset most-similar) player-table {:on :player_name})))
 
-(get-closest-names "Ripken" "cAl" lookup-table)
-
-
-lookup-table
+(comment 
+  #_(d/filter lookup-table (fn [m] (let [vs ((juxt #(get % "key_retro")
+                                                   #(get % "key_bbref")
+                                                   #(get % "key_fangraphs")
+                                                   #(get % "mlb_played_first")
+                                                   #(get % "mlb_played_last")) m)]
+                                     (every? nil? vs))))
+  (d/row-map lookup-table (fn [row] (keep (fn [v] (if v v nil)) row)))
+  (map #(.getString %) (FuzzySearch/extractAll (str "Adley" "Ruschmann") (into [] (:player_name lookup-table)) 65))
+  (get-closest-names "Ruschmann" "" lookup-table)
+  )
 
 #_{:clj-kondo/ignore [:clojure-lsp/unused-public-var]}
 (def chadwick-tables
@@ -54,6 +66,7 @@ lookup-table
          (into []))))
 
 (comment
+  (type (d/row-at lookup-table 0))
   (-> DEFAULT-CACHE-DIR type javadoc)
   (javadoc org.apache.http.message.BasicHttpResponse)
   (javadoc java.net.URI)
@@ -69,6 +82,6 @@ lookup-table
       lookup-player-by-mlbid))
 
 (comment #_{:clj-kondo/ignore [:clojure-lsp/unused-public-var]}
-         (def p (p/open {:launcher :vs-code}))
+ (def p (p/open {:launcher :vs-code}))
 
          (add-tap #'p/submit))
