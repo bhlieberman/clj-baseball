@@ -3,7 +3,8 @@
         clj-http/clj-http {:mvn/version "3.12.3"}
         com.cnuernber/charred {:mvn/version "1.014"}
         techascent/tech.ml.dataset {:mvn/version "7.000-beta-53"}
-        ring/ring-core {:mvn/version "1.9.6"}}
+        ring/ring-core {:mvn/version "1.9.6"}
+        me.xdrop/fuzzywuzzy {:mvn/version "1.4.0"}}
  :aliases
  {:build
   {:extra-deps {io.github.clojure/tools.build {:git/tag "v0.9.3" :git/sha "e537cd1"}}}
