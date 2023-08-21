@@ -11,5 +11,5 @@
 
 (def DEFAULT-CACHE-DIR 
   (Paths/get (System/getProperty "user.home") 
-             (into-array [".pybaseball" "cache"])))
+             (into-array [".clj-baseball" "cache"])))
 
