@@ -1,4 +1,4 @@
-(ns com.slothrop.player.lookup
+(ns com.slothrop.clj-baseball.player.lookup
   (:require [clojure.java.io :as jio]
             [clj-http.client :as client]
             [tablecloth.api.missing :as m]

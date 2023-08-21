@@ -1,4 +1,4 @@
-(ns com.slothrop.statcast.batter
+(ns com.slothrop.clj-baseball.statcast.batter
   {:doc "Contains the implementation for the Statcast query endpoint."}
   (:require [clojure.java.io :as io]
             [clojure.string :as string]

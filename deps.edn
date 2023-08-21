@@ -1,4 +1,4 @@
-{:paths ["src" "resources"]
+{:paths ["src/com/slothrop/clj_baseball" "resources"]
  :deps {org.jsoup/jsoup {:mvn/version "1.15.3"}
         clj-http/clj-http {:mvn/version "3.12.3"}
         com.cnuernber/charred {:mvn/version "1.014"}
@@ -19,7 +19,8 @@
   {:jvm-opts ["--add-modules" "jdk.incubator.foreign"
               "--enable-native-access=ALL-UNNAMED"]}
   :python
-  {:extra-deps {clj-python/libpython-clj {:mvn/version "2.023"}}}
+  {:extra-deps {clj-python/libpython-clj {:mvn/version "2.023"}}
+   :extra-paths ["src/com/slothrop/interop"]}
   :portal
   {:extra-deps {djblue/portal {:mvn/version "0.33.0"}}} 
   :deploy {:replace-deps {slipset/deps-deploy {:mvn/version "0.1.5"}}

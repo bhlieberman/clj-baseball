@@ -15,8 +15,8 @@
                 :lib lib
                 :version version
                 :basis basis
-                :src-dirs ["src"]})
-  (b/copy-dir {:src-dirs ["src"]
+                :src-dirs ["src/com/slothrop/clj_baseball"]})
+  (b/copy-dir {:src-dirs ["src/com/slothrop/clj_baseball"]
                :target-dir class-dir})
   (b/jar {:class-dir class-dir
           :jar-file jar-file}))
