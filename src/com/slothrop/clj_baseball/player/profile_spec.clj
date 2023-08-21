@@ -1,4 +1,4 @@
-(ns com.slothrop.player.profile-spec
+(ns com.slothrop.clj-baseball.player.profile-spec
   (:require [clojure.spec.alpha :as s]))
 
 (s/def ::games int?)
