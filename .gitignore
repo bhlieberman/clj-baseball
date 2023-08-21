@@ -3,6 +3,7 @@
 .cpcache
 .lsp
 .portal
+.vscode
 .nrepl-port
 .shadow-cljs
 classes/
@@ -11,3 +12,4 @@ src/main/user.clj
 node_modules/
 target/
 resources/public/js
+resources/register-master.zip

@@ -1,4 +1,5 @@
 (ns com.slothrop.statcast.batter
+  {:doc "Contains the implementation for the Statcast query endpoint."}
   (:require [clojure.java.io :as io]
             [clojure.string :as string]
             [clojure.edn :refer [read-string]]
@@ -65,13 +66,7 @@
   (let [url "https://baseballsavant.mlb.com/statcast_search/csv?"
         qs (->> params (make-query-map query-defaults) encode-url-params make-query-string (str url))
         results (some-> qs
-                        (client/get {:async? true
-                                     :as :stream}
-                                    (fn [response] response)
-                                    (fn [_] nil)) 
-                        .get 
-                        .getEntity 
-                        .getContent 
+                        (client/get {:as :stream})  
                         read-csv)
         cols (map (comp keyword #(string/replace % #"_" "-")) (first results))]
     (->> (rest results)

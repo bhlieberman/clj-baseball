@@ -1,9 +1,11 @@
 (ns player.lookup-test
-  (:require [clojure.test :refer [deftest is run-tests]]
-            [com.slothrop.player.lookup :refer [lookup-table]]
-            [charred.api :refer [read-csv]]))
+  (:require [clojure.test :refer [deftest is testing run-tests]]
+            [tech.v3.dataset :as d]
+            [com.slothrop.player.lookup :refer [lookup-table]]))
 
-(deftest lookup-table-test
-  (is (= 3069 (count (read-csv (:body @lookup-table))))))
+(deftest lookup-table-pipeline
+  (testing "that the full pipeline of functions correctly reduces and filters the Chadwick dataset" 
+    (is (some? lookup-table))
+    (is (= (count (d/rows lookup-table)) 20627))))
 
 (run-tests)

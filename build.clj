@@ -2,7 +2,7 @@
   (:require [clojure.tools.build.api :as b]))
 
 (def lib 'slothrop/clj-baseball)
-(def version (format "0.1.%s" (b/git-count-revs nil)))
+(def version "0.2.1")
 (def class-dir "target/classes/")
 (def basis (b/create-basis {:project "deps.edn"}))
 (def jar-file (format "target/%s-%s.jar" (name lib) version))
@@ -15,8 +15,8 @@
                 :lib lib
                 :version version
                 :basis basis
-                :src-dirs ["src" "resources"]})
-  (b/copy-dir {:src-dirs ["src" "resources"]
+                :src-dirs ["src"]})
+  (b/copy-dir {:src-dirs ["src"]
                :target-dir class-dir})
   (b/jar {:class-dir class-dir
           :jar-file jar-file}))

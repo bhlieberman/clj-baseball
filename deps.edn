@@ -2,8 +2,10 @@
  :deps {org.jsoup/jsoup {:mvn/version "1.15.3"}
         clj-http/clj-http {:mvn/version "3.12.3"}
         com.cnuernber/charred {:mvn/version "1.014"}
-        techascent/tech.ml.dataset {:mvn/version "7.000-beta-38"}
-        ring/ring-core {:mvn/version "1.9.6"}}
+        techascent/tech.ml.dataset {:mvn/version "7.000-beta-53"}
+        scicloj/tablecloth {:mvn/version "7.000-beta-51"}
+        ring/ring-core {:mvn/version "1.9.6"}
+        me.xdrop/fuzzywuzzy {:mvn/version "1.4.0"}}
  :aliases
  {:build
   {:extra-deps {io.github.clojure/tools.build {:git/tag "v0.9.3" :git/sha "e537cd1"}}}
@@ -22,4 +24,4 @@
   {:extra-deps {djblue/portal {:mvn/version "0.33.0"}}} 
   :deploy {:replace-deps {slipset/deps-deploy {:mvn/version "0.1.5"}}
            :exec-fn deps-deploy.deps-deploy/deploy
-           :exec-args {:installer :remote :artifact "target/clj-baseball-0.1.92.jar"}}}}
+           :exec-args {:installer :remote :artifact "target/clj-baseball-0.2.1.jar"}}}}
