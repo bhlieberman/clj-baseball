@@ -4,13 +4,13 @@
   <packaging>jar</packaging>
   <groupId>org.clojars.slothrop</groupId>
   <artifactId>clj-baseball</artifactId>
-  <version>0.1.91</version>
+  <version>0.2.1</version>
   <name>clj-baseball</name>
   <scm>
     <url>https://github.com/bhlieberman/clj-baseball</url>
     <connection>scm:git:git://github.com/bhlieberman/clj-baseball.git</connection>
     <developerConnection>scm:git:ssh://git@github.com/bhlieberman/clj-baseball.git</developerConnection>
-    <tag>v0.1.91</tag>
+    <tag>v0.2.1</tag>
   </scm>
   <dependencies>
     <dependency>
@@ -37,6 +37,21 @@
       <groupId>ring</groupId>
       <artifactId>ring-core</artifactId>
       <version>1.9.6</version>
+    </dependency>
+    <dependency>
+      <groupId>techascent</groupId>
+      <artifactId>tech.ml.dataset</artifactId>
+      <version>7.000-beta-51</version>
+    </dependency>
+    <dependency>
+      <groupId>scicloj</groupId>
+      <artifactId>tablecloth</artifactId>
+      <version>7.000-beta-51</version>
+    </dependency>
+    <dependency>
+      <groupId>me.xdrop</groupId>
+      <artifactId>fuzzywuzzy</artifactId>
+      <version>1.4.0</version>
     </dependency>
   </dependencies>
   <build>
