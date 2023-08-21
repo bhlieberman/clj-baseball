@@ -10,16 +10,6 @@ In `com/slothrop/sabermetrics`, the user can find the existing functionality for
 
 All other namespaces are stubs at this time.
 
-## Getting started
-
-Once you've downloaded this library (soon to be available on Clojars), use the functions in the `com/slothrop/statcast.batter` namespace to compose and send your query to Statcast. This will return a map of data. Currently, the implementation of `send-req!` is fairly naive; thus, large queries are discouraged unless you wish to wait. Moreover, the ability to compose queries of arbitrary granularity using Clojure maps should encourage you to keep it specific. An example query might look like this:
-
-```
-(def results (send-req! {:game-date-gt "2022-04-28" :game-date-lt "2022-05-01" :hfTeam "BAL"}))
-```
-
-This is looking for all game data for games between 2022-04-28 and 2022-05-01 where the Baltimore Orioles were playing. The data contained in `resources/public/query.edn` contains all the other available fields to narrow and broaden the scope of your query, as desired. When you pass a map like the one above to `send-req!`, your desired parameters are merged with the default values in the .edn file. Beware that the Statcast endpoint is a bit finicky: if it returns no data, you might have slipped up entering a parameter in a specific format. To the greatest extent possible I have attempted to mitigate this issue by using Clojure `spec` to validate queries; issues about this and other concerns with the library are welcome.
-
 ## Python interop!
 
 This is an experimental feature, but for now basic DataFrames are available thanks to the excellent `libpython-clj` library. Two idiomatic Clojure wrappers around some DataFrame class methods (`DataFrame.from_dict` and `DataFrame.from_records`) are provided. To enable Python support, you must of course have Python installed on your machine, and use one of the `jdk-??` aliases specified in `deps.edn`, based on your version of Java. This includes modules required only by `libpython-clj` when the JVM starts. 

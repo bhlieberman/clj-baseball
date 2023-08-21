@@ -37,21 +37,26 @@
 
 (s/def :outcome/outcome (s/multi-spec at-bat :outcome))
 
-;; helper fn to compute batting average
-(defn batting-avg [{::keys [h ab]}] (float (/ h ab)))
+(defn batting-avg
+  {:doc "helper fn to compute batting average"}
+  [{::keys [h ab]}] (float (/ h ab)))
 
-;; helper fn to compute strikeout rate
-(defn k-rate [{::keys [k pa]}] (float (/ k pa)))
+(defn k-rate 
+  {:doc "helper fun to compute strikeout rate"}
+  [{::keys [k pa]}] (float (/ k pa)))
 
-;; helper fn to compute walk rate
-(defn bb-rate [{::keys [bb pa]}] (float (/ bb pa)))
+(defn bb-rate
+  {:doc "helper fn to compute walk rate"}
+  [{::keys [bb pa]}] (float (/ bb pa)))
 
-;; helper fn to compute on-base percentage
-(defn obp [{::keys [h bb hbp ab sf]}]
+(defn obp
+  {:doc "helper fn to compute on-base percentage"}
+  [{::keys [h bb hbp ab sf]}]
   (float (/ (+ h bb hbp) (+ ab bb hbp sf))))
 
-;; helper fn to compute slugging percentage
-(defn slugging [{::keys [singles doubles triples home-runs ab]}]
+(defn slugging
+  {:doc "helper fn to compute slugging percentage"}
+  [{::keys [singles doubles triples home-runs ab]}]
   (float (/ (+ singles doubles triples home-runs) ab)))
 
 
