@@ -3,6 +3,7 @@
         clj-http/clj-http {:mvn/version "3.12.3"}
         com.cnuernber/charred {:mvn/version "1.014"}
         techascent/tech.ml.dataset {:mvn/version "7.000-beta-53"}
+        scicloj/tablecloth {:mvn/version "7.000-beta-51"}
         ring/ring-core {:mvn/version "1.9.6"}
         me.xdrop/fuzzywuzzy {:mvn/version "1.4.0"}}
  :aliases
