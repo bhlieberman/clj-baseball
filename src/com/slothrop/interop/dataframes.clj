@@ -5,6 +5,7 @@
 (require-python '[pandas :as pd]
                 '[numpy :as np])
 
+#_{:clj-kondo/ignore [:clojure-lsp/unused-public-var]}
 (defn ^:deprecated create-dataframe-from-dict 
   {:doc "Converts a sequence of maps into a single map with sequential values. 
          Passes the result to the DataFrame.from_dict class method.
@@ -18,6 +19,7 @@
                               (vector fst snd))))
        (call-attr pd/DataFrame "from_dict")))
 
+#_{:clj-kondo/ignore [:clojure-lsp/unused-public-var]}
 (defn ^:deprecated create-dataframe-from-records 
   {:doc "Passes a sequence of maps directly to the DataFrame.from_records class method.
          This function will be removed in the 0.4.0 major release. Use the functionality provided by TMD and Tablecloth instead."}

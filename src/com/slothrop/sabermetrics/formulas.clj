@@ -2,7 +2,7 @@
   "Contains the reference implementations of common baseball stats formulas
    according to the glossary provided by FanGraphs"
   (:require [clojure.spec.alpha :as s]
-            [com.slothrop.player.profile-spec :as pspec]))
+            [com.slothrop.clj-baseball.player.profile-spec :as-alias pspec]))
 
 (s/check-asserts true)
 
