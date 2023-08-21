@@ -3,6 +3,7 @@
 .cpcache
 .lsp
 .portal
+.vscode
 .nrepl-port
 .shadow-cljs
 classes/
