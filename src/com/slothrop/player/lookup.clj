@@ -39,7 +39,7 @@
          (catch java.io.FileNotFoundException _))
     nil))
 
-(defn register->dataset []
+(def register->dataset 
   (let [cached-ds (get-cached-register-file)]
     (when-not cached-ds ;; account for cached file later ... if - else
       (z/zipfile->dataset-seq (.. register get getEntity getContent)))))
@@ -68,7 +68,7 @@
                                   ds
                                   ["key_retro" "key_bbref" "key_fangraphs"
                                    "mlb_played_first" "mlb_played_last"]))]
-    (->> (register->dataset)
+    (->> register->dataset
          (filter (fn [ds]
                    (-> ds
                        d/dataset-name
