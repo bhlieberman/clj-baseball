@@ -1,13 +1,16 @@
 (ns player.lookup-test
-  (:require [clojure.test :refer [deftest is run-tests]]
-            [com.slothrop.player.lookup :refer [lookup-table lookup-table-v2 lookup-player-by-mlbid
+  (:require [clojure.test :refer [deftest is testing run-tests]]
+            [tech.v3.dataset :as d]
+            [com.slothrop.player.lookup :refer [lookup-table-v2
                                                 get-cached-register-file]]))
 
 (deftest cached-file-not-exists
   (is (nil? (get-cached-register-file))))
 
-(deftest lookup-v2-tests
-  (let [lookup-table (lookup-table-v2)]
-    (is (some? lookup-table))))
+(deftest lookup-table-pipeline
+  (testing "that the full pipeline of functions correctly reduces and filters the Chadwick dataset"
+    (let [register (lookup-table-v2)]
+      (is (some? register))
+      (is (= (count (d/rows register)) 20627)))))
 
 (run-tests)
