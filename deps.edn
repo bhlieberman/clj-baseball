@@ -1,4 +1,4 @@
-{:paths ["src/com/slothrop/clj_baseball" "resources"]
+{:paths ["src" "resources"]
  :deps {org.jsoup/jsoup {:mvn/version "1.15.3"}
         clj-http/clj-http {:mvn/version "3.12.3"}
         com.cnuernber/charred {:mvn/version "1.014"}
