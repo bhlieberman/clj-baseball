@@ -29,7 +29,7 @@
 
 (def ^:private register->dataset 
   (let [cached-ds (get-cached-register-file)]
-    (or cached-ds (z/zipfile->dataset-seq (.. register get getEntity getContent)))))
+    (future (or cached-ds (z/zipfile->dataset-seq (.. register get getEntity getContent))))))
 
 (defn- keep-cols [ds]
   (try (d/select-columns ds ["name_last" "name_first" "key_mlbam"
@@ -50,12 +50,13 @@
                                                                    5))}]
     (j/pd-merge (d/->dataset most-similar) player-table {:on :player-name})))
 
-(def lookup-table 
+(defn- lookup-table [] 
   (letfn [(complete-records [ds] (m/drop-missing
                                   ds
                                   ["key_retro" "key_bbref" "key_fangraphs"
                                    "mlb_played_first" "mlb_played_last"]))]
     (->> register->dataset
+         deref
          (filter (fn [ds]
                    (-> ds
                        d/dataset-name
@@ -69,14 +70,15 @@
 (defn search
   {:doc "Look up a player's MLB ID from the Chadwick Bureau dataset. Accepts a `fuzzy?` flag to enable fuzzy searching of names."}
   [{:keys [player-last player-first fuzzy?] :or {fuzzy? false}}]
-  (if fuzzy?
-    (get-closest-names player-last player-first lookup-table)
-    (if (nil? player-first)
-      (tcr/select-rows lookup-table (comp #(= % player-last) #(get % "name_last")))
-      (tcr/select-rows lookup-table (comp (fn [[first last]]
-                                (and (= first player-first) (= last player-last)))
-                              (juxt #(get % "name_first")
-                                    #(get % "name_last")))))))
+  (let [table (lookup-table)]
+    (if fuzzy?
+      (get-closest-names player-last player-first table)
+      (if (nil? player-first)
+        (tcr/select-rows table (comp #(= % player-last) #(get % "name_last")))
+        (tcr/select-rows table (comp (fn [[first last]]
+                                  (and (= first player-first) (= last player-last)))
+                                (juxt #(get % "name_first")
+                                      #(get % "name_last"))))))))
 
 (comment
   (search {:player-last "Ripken"
