@@ -2,7 +2,7 @@
   {:doc "Contains the implementation for the Statcast query endpoint."}
   (:require [clojure.java.io :as io]
             [clojure.string :as string]
-            [clojure.edn :refer [read-string]]
+            [clojure.edn :as edn]
             [clojure.spec.alpha :as s]
             [charred.api :refer [read-csv]]
             [clj-http.client :as client])
@@ -12,7 +12,7 @@
   "The default map of query parameter values. Can be changed to modify the scope
    and size of your Statcast query."
   (with-open [rdr (-> "public/query.edn" io/resource io/reader)]
-    (read-string (slurp rdr))))
+    (edn/read-string (slurp rdr))))
 
 (defn make-query-map
   {:doc "Modifies the query map stored in query-defaults with a user-specified
