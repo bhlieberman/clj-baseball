@@ -12,11 +12,12 @@
 
 (defn jar [_]
   (b/write-pom {:class-dir class-dir
+                :src-pom "/home/bhlieberman/dev/clj/clj-baseball/pom.xml"
                 :lib lib
                 :version version
                 :basis basis
-                :src-dirs ["src/com/slothrop/clj_baseball"]})
-  (b/copy-dir {:src-dirs ["src/com/slothrop/clj_baseball"]
+                :src-dirs ["src"]})
+  (b/copy-dir {:src-dirs ["src"] 
                :target-dir class-dir})
   (b/jar {:class-dir class-dir
           :jar-file jar-file}))
