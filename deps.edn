@@ -25,4 +25,4 @@
   {:extra-deps {djblue/portal {:mvn/version "0.33.0"}}} 
   :deploy {:replace-deps {slipset/deps-deploy {:mvn/version "0.1.5"}}
            :exec-fn deps-deploy.deps-deploy/deploy
-           :exec-args {:installer :remote :artifact "target/clj-baseball-0.3.1.jar"}}}}
+           :exec-args {:installer :remote :artifact "target/clj-baseball-0.3.3.jar"}}}}

@@ -8,7 +8,13 @@
             [tech.v3.dataset.join :as j]
             [tech.v3.dataset.zip :as z]
             [com.slothrop.cache.cache-config :refer [DEFAULT-CACHE-DIR]])
-  (:import [me.xdrop.fuzzywuzzy FuzzySearch]))
+  (:import [me.xdrop.fuzzywuzzy FuzzySearch]
+           [me.xdrop.fuzzywuzzy.model BoundExtractedResult]
+           [org.apache.http.impl.nio.client FutureWrapper]
+           [org.apache.http.message BasicHttpResponse]
+           [org.apache.http.nio.entity ContentBufferEntity]))
+
+(set! *warn-on-reflection* true)
 
 (defn- table->csv [table]
   (with-open [is (jio/input-stream table)]
@@ -22,14 +28,18 @@
                           (fn [err] (throw (ex-info "Request for player lookup table failed" {:cause err})))))
 
 (defn- get-cached-register-file []
-  (if (.exists (jio/file (.toUri DEFAULT-CACHE-DIR)))
+  (if (.exists (jio/file (.toUri ^java.nio.file.Path DEFAULT-CACHE-DIR)))
     (try (table->csv (str DEFAULT-CACHE-DIR "/last_query.csv"))
          (catch java.io.FileNotFoundException _))
     nil))
 
-(def ^:private register->dataset 
-  (let [cached-ds (get-cached-register-file)]
-    (future (or cached-ds (z/zipfile->dataset-seq (.. register get getEntity getContent))))))
+(defn ^:private register->dataset [^FutureWrapper r] 
+  (let [cached-ds (get-cached-register-file)
+        ^BasicHttpResponse resp (.get r)
+        ^ContentBufferEntity contentity (.getEntity resp)]
+    (future (or cached-ds (-> contentity
+                              .getContent
+                           z/zipfile->dataset-seq)))))
 
 (defn- keep-cols [ds]
   (try (d/select-columns ds ["name_last" "name_first" "key_mlbam"
@@ -45,7 +55,7 @@
 (defn- get-closest-names [player-last player-first player-table]
   (let [player-names (into [] (:player-name player-table))
         most-similar {:player-name
-                      (map #(.getString %) (FuzzySearch/extractTop (str player-first player-last)
+                      (map #(.getString ^BoundExtractedResult %) (FuzzySearch/extractTop (str player-first player-last)
                                                                    player-names
                                                                    5))}]
     (j/pd-merge (d/->dataset most-similar) player-table {:on :player-name})))
@@ -55,7 +65,7 @@
                                   ds
                                   ["key_retro" "key_bbref" "key_fangraphs"
                                    "mlb_played_first" "mlb_played_last"]))]
-    (->> register->dataset
+    (->> (register->dataset register)
          deref
          (filter (fn [ds]
                    (-> ds
