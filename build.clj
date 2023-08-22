@@ -2,7 +2,7 @@
   (:require [clojure.tools.build.api :as b]))
 
 (def lib 'slothrop/clj-baseball)
-(def version "0.3.52")
+(def version "0.3.53")
 (def class-dir "target/classes/")
 (def basis (b/create-basis {}))
 (def jar-file (format "target/%s-%s.jar" (name lib) version))
