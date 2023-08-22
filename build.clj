@@ -4,7 +4,7 @@
 (def lib 'slothrop/clj-baseball)
 (def version "0.3.1")
 (def class-dir "target/classes/")
-(def basis (b/create-basis {:project "deps.edn"}))
+(def basis (b/create-basis {}))
 (def jar-file (format "target/%s-%s.jar" (name lib) version))
 
 (defn clean [_]
@@ -15,8 +15,8 @@
                 :lib lib
                 :version version
                 :basis basis
-                :src-dirs ["src/com/slothrop/clj_baseball"]})
-  (b/copy-dir {:src-dirs ["src/com/slothrop/clj_baseball"]
+                :src-dirs ["src"]})
+  (b/copy-dir {:src-dirs ["src"]
                :target-dir class-dir})
   (b/jar {:class-dir class-dir
           :jar-file jar-file}))
