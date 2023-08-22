@@ -4,20 +4,15 @@
   <packaging>jar</packaging>
   <groupId>org.clojars.slothrop</groupId>
   <artifactId>clj-baseball</artifactId>
-  <version>0.3.1</version>
+  <version>0.3.2</version>
   <name>clj-baseball</name>
   <scm>
     <url>https://github.com/bhlieberman/clj-baseball</url>
     <connection>scm:git:git://github.com/bhlieberman/clj-baseball.git</connection>
     <developerConnection>scm:git:ssh://git@github.com/bhlieberman/clj-baseball.git</developerConnection>
-    <tag>v0.3.1</tag>
+    <tag>v0.3.2</tag>
   </scm>
   <dependencies>
-    <dependency>
-      <groupId>org.clojure</groupId>
-      <artifactId>clojure</artifactId>
-      <version>1.11.1</version>
-    </dependency>
     <dependency>
       <groupId>clj-http</groupId>
       <artifactId>clj-http</artifactId>
@@ -55,7 +50,7 @@
     </dependency>
   </dependencies>
   <build>
-    <sourceDirectory>src</sourceDirectory>
+    <sourceDirectory>src/com/slothrop/clj_baseball</sourceDirectory>
   </build>
   <repositories>
     <repository>
