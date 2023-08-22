@@ -5,6 +5,7 @@
             [clojure.edn :as edn]
             [clojure.spec.alpha :as s]
             [charred.api :refer [read-csv]]
+            [tech.v3.dataset :as d] 
             [clj-http.client :as client])
   (:import [java.net URLEncoder]))
 
@@ -66,10 +67,12 @@
   (let [url "https://baseballsavant.mlb.com/statcast_search/csv?"
         qs (->> params (make-query-map query-defaults) encode-url-params make-query-string (str url))
         results (some-> qs
-                        (client/get {:as :stream})  
+                        (client/get {:as :stream})
+                        :body
                         read-csv)
         cols (map (comp keyword #(string/replace % #"_" "-")) (first results))]
     (->> (rest results)
          (map (comp parse-int-vals
                     parse-double-vals
-                    (partial zipmap cols))))))
+                    (partial zipmap cols)))
+         d/->dataset)))

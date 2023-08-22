@@ -15,11 +15,11 @@
             [tech.v3.dataset.join :as j]
             [tech.v3.dataset.zip :as z]
             [tech.v3.dataset.io.csv :as csv]
-            [com.slothrop.statcast.batter :refer [send-req!]]
-            [com.slothrop.statcast.results-spec :as-alias rspec]
-            [com.slothrop.bbref.batting :refer [data rows]]
-            [com.slothrop.player.lookup :refer [lookup-table]]
-            [com.slothrop.cache.cache-config :refer [DEFAULT-CACHE-DIR]]))
+            [com.slothrop.clj-baseball.statcast.batter :refer [send-req!]]
+           #_[com.slothrop.statcast.results-spec :as-alias rspec]
+            #_[com.slothrop.bbref.batting :refer [data rows]]
+            #_[com.slothrop.player.lookup :refer [lookup-table]]
+            #_[com.slothrop.cache.cache-config :refer [DEFAULT-CACHE-DIR]]))
 
 ;; a single day of game data for dev usage
 (def results (send-req! {:game-date-gt "2022-05-01"

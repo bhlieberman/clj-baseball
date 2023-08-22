@@ -7,7 +7,7 @@
             [tech.v3.dataset :as d]
             [tech.v3.dataset.join :as j]
             [tech.v3.dataset.zip :as z]
-            [com.slothrop.cache.cache-config :refer [DEFAULT-CACHE-DIR]])
+            [com.slothrop.clj-baseball.cache.cache-config :refer [DEFAULT-CACHE-DIR]])
   (:import [me.xdrop.fuzzywuzzy FuzzySearch]
            [me.xdrop.fuzzywuzzy.model BoundExtractedResult]
            [org.apache.http.impl.nio.client FutureWrapper]
