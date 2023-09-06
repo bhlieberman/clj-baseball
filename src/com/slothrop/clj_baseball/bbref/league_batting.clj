@@ -1,6 +1,7 @@
 (ns com.slothrop.clj-baseball.bbref.league-batting
   (:require [com.slothrop.clj-baseball.bbref.datasource :refer [-get]]
             [clojure.string :as string]
+            [clojure.walk :refer [macroexpand-all]]
             [tech.v3.dataset :as d])
   (:import [org.jsoup.nodes Document Element]
            [org.jsoup.select Elements]))
@@ -14,7 +15,7 @@
         -get)))
 
 (defn get-table ^Elements [^Document html]
-  (.getElementsByTag html "table"))
+  (nth (.getElementsByTag html "table") 0))
 
 (def batting (get-html "2023-08-27" "2023-08-28"))
 
@@ -51,19 +52,24 @@
 
 ;; almost there
 (def batting-stats-table
-  (let [table (-> (get-table batting)
-                  ^Element (nth 0)
-                  (.selectXpath "//table//tbody"))
-        ids (-> table
-                (.select "tr")
-                (->> (into []
-                           (map get-mlb-id))))
-        data (map (comp
-                   #(zipmap headers %)
-                   conj)
-                  (get-stats table)
-                  ids)]
-    (d/->dataset data)))
+  (let [table (get-table batting)
+        get-text (map #(.text %))
+        get-headers (comp get-text (take 29) (remove string/blank?))
+        headers (assoc (into [] (eduction get-headers (.selectXpath table "//table//tr//th"))) 0 "MLB_ID")
+        body (.selectXpath table "//table//tbody//tr//td")] 
+    (d/->dataset (into [] (comp (partition-all 28)
+                                (map (fn [[[id name] _ & stats]] (zipmap headers 
+                                                                         (apply vector id name stats)))))
+                       (for [td body
+                             :let [mlb-id (some-> td
+                                                  (.select "a[href]")
+                                                  first
+                                                  .attributes
+                                                  (.get "href")
+                                                  (string/split #"mlb_ID=")
+                                                  (nth 1 nil))
+                                   id-or-stats (if (some? mlb-id) [mlb-id (.text td)] (.text td))]]
+                         id-or-stats)))))
 
 (comment
   batting-stats-table)
