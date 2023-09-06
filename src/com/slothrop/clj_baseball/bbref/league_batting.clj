@@ -1,65 +1,41 @@
 (ns com.slothrop.clj-baseball.bbref.league-batting
   (:require [com.slothrop.clj-baseball.bbref.datasource :refer [-get]]
-            [clojure.string :as string]
-            [clojure.walk :refer [macroexpand-all]]
+            [clojure.string :as string] 
             [tech.v3.dataset :as d])
   (:import [org.jsoup.nodes Document Element]
            [org.jsoup.select Elements]))
 
 (set! *warn-on-reflection* false)
 
-(defn get-html [start-date end-date]
+(defn- get-html [start-date end-date]
   (let [url "http://www.baseball-reference.com/leagues/daily.cgi?user_team=&bust_cache=&type=b&lastndays=7&dates=fromandto&fromandto=%s.%s&level=mlb&franch=&stat=&stat_value=0"]
     (-> url
         (format start-date end-date)
+        ;; BUG: -get times out on first call: evaluate again and it works
         -get)))
 
-(defn get-table ^Elements [^Document html]
+(defn- get-table ^Elements [^Document html]
   (nth (.getElementsByTag html "table") 0))
 
-(def batting (get-html "2023-08-27" "2023-08-28"))
+(def ^:private text (map #(.text ^Element %)))
 
-(def headers
-  (let [headers (into
-                 []
-                 (comp
-                  (map #(.text ^Element %))
-                  (take 29)
-                  (remove string/blank?))
-                 (-> (get-table batting)
-                     (nth 0)
-                     (.selectXpath "//table//tr/th")))]
-    (assoc headers 0 "mlb-id")))
+(defn- headers [table]
+  (let [xf (comp text (take 29) (remove string/blank?))
+        headers (into [] xf (.selectXpath table "//table//tr//th"))]
+    (assoc headers 0 "MLB_ID")))
 
-(defn- get-mlb-id [^Element row]
-  (some-> row
-          (.select "a")
-          first
-          .attributes
-          (.get "href")
-          (string/split #"mlb_ID=")
-          (nth 1)))
-
-(defn- get-stats [table]
-  (for [row (.select table "tr")
-        :let [data (.. row (select "td") text)
-              [player-name stats-str] (string/split data #"gl")]
-        :when (some? stats-str)]
-    (let [stats (-> stats-str
-                    string/trim
-                    (string/split #" "))]
-      (concat [player-name] stats))))
-
-;; almost there
-(def batting-stats-table
-  (let [table (get-table batting)
-        get-text (map #(.text %))
-        get-headers (comp get-text (take 29) (remove string/blank?))
-        headers (assoc (into [] (eduction get-headers (.selectXpath table "//table//tr//th"))) 0 "MLB_ID")
-        body (.selectXpath table "//table//tbody//tr//td")] 
-    (d/->dataset (into [] (comp (partition-all 28)
-                                (map (fn [[[id name] _ & stats]] (zipmap headers 
-                                                                         (apply vector id name stats)))))
+(defn batting-stats-table
+  {:doc "Retrieves daily batting leaders for the provided date range. 
+         WARNING: if you see `SocketTimeoutException`, evaluate a second time. This is a bug.
+         Upon a second execution, the function will return a TMD dataset."}
+  [start-date end-date]
+  (let [table (get-table (get-html start-date end-date))
+        headers (headers table)
+        body (.selectXpath table "//table//tbody//tr//td")
+        xf (comp (partition-all 28)
+                 (map (fn [[[id name] _ & stats]] (zipmap headers
+                                                          (apply vector id name stats)))))]
+    (d/->dataset (into [] xf
                        (for [td body
                              :let [mlb-id (some-> td
                                                   (.select "a[href]")
@@ -72,4 +48,4 @@
                          id-or-stats)))))
 
 (comment
-  batting-stats-table)
+  (batting-stats-table "2023-04-28" "2023-05-01"))
