@@ -147,8 +147,8 @@
 (defn date-range []
   (let [low (LocalDate/of 2023 03 15)
         high (LocalDate/of 2023 11 15)]
-    (remove (fn [d] (or (neg-int? (.compareTo d low))
-                        (pos-int? (.compareTo d high)))))))
+    (remove (fn [^LocalDate d] (or (neg-int? (.compareTo d low))
+                                   (pos-int? (.compareTo d high)))))))
 
 (defn most-recent-season []
   (let [today (LocalDate/now)
@@ -159,10 +159,3 @@
                    (into [] (date-range)))
         most-recent-date (nth dates (dec (count dates)))]
     (.getYear most-recent-date)))
-
-(most-recent-season)
-
-(comment 
-  (let [today (LocalDate/now)
-        monday (LocalDate/of 2023 9 4)]
-    (.compareTo monday today)))
