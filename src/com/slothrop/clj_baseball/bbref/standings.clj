@@ -12,26 +12,38 @@
 (defn get-tables [html season]
   (cond
     (>= season 1969)
-    (let [tables (.select html "table")
-          eighty-one (when (= 1981 season)
-                       (filter (fn [x] (let [id (.attr x "id")]
-                                         (string/includes? id "overall"))) tables))]
-      (for [table (if (= 1981 season) eighty-one tables)
-            :let [headings (.selectXpath table "//tr//th")
-                  [team-names stats] #(group-by (fn [coll] (> (count (string/split coll #"\s")) 1)) %)
-                  body (.selectXpath table "//tbody//tr")
-                  rows (for [row body
-                             :let [cols (.select row "td")]]
-                         (map #(.text %) cols))]]
-        
-        #_[(map #(.text %) (distinct headings)) rows]))))
+    (let [tables (cond->> (.select html "table")
+                   (= 1981 season)
+                   (filter (fn [x] (let [id (.attr x "id")]
+                                     (string/includes? id "overall"))))
+                   true identity)]
+      (for [table tables
+            :let [headings (map #(.text %)
+                                (-> table 
+                                    (.getElementsByTag "tr")
+                                    first
+                                    (.getElementsByTag "th")))
+                  body (first (.getElementsByTag table "tbody"))]]
+        (for [row (.getElementsByTag body "tr")
+              :let [cols (.getElementsByTag row "td")
+                    col-text (map (comp string/trim #(.text %)) cols)]]
+          (cons (-> row (.getElementsByTag "a") first .text string/trim) col-text))))))
 
 (def season (get-standings-html 1981))
 
 (get-tables season 1981)
 
-(comment 
-  (let [headings 
+(comment
+  (map #(.id %) (.select season "table"))
+  #_(for [table (if (= 1981 season) eighty-one tables)
+          :let [headings (.selectXpath table "//tr//th")
+                #_#_[team-names stats] (group-by (fn [coll] (> (count (string/split coll #"\s")) 1)) %)
+                body (.selectXpath table "//tbody//tr")
+                rows (for [row body
+                           :let [cols (.select row "td")]]
+                       (map #(.text %) cols))]]
+      [(map #(.text %) (distinct headings)) rows])
+  (let [headings
         ["Milwaukee Brewers"
          "Boston Red Sox"
          "Detroit Tigers"
