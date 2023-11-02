@@ -26,12 +26,13 @@
                              _ (.html el comments)
                              table (.selectFirst el (Evaluator$Tag. "table"))
                              thead (.selectFirst table (Evaluator$Tag. "thead"))
-                             headings (into [] (map #(.text %) (.getElementsByTag thead "th")))
+                             headings (into [] (map #(.text %)) (.getElementsByTag thead "th"))
                              w-year (assoc headings 2 "Year")
                              rows (-> table (.selectFirst (Evaluator$Tag. "tbody")) (.getElementsByTag "tr"))]]
                    (map (partial zipmap w-year)
                         (for [row rows
-                              :let [cols (.getElementsByTag row "td")
+                              :let [cols (Elements. (concat (.getElementsByTag row "th")
+                                                            (.getElementsByTag row "td")))
                                     xf (comp
                                         (map (comp
                                               #(string/replace % #"\*" "")
@@ -42,7 +43,7 @@
                                     w-season (when (< 1 (count cols-text)) (assoc cols-text 2 season))]]
                           w-season)))]
      (c/reorder-columns
-      (->> seasons 
+      (->> seasons
            (into [] cat)
            (d/->>dataset {:dataset-name "Team Fielding"}))
       ["Name" "Age" "G" "GS" "CG"
