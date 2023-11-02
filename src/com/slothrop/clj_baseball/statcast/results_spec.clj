@@ -1,4 +1,4 @@
-(ns com.slothrop.clj-baseball.statcast.results-spec
+(ns ^:no-doc com.slothrop.clj-baseball.statcast.results-spec
   (:require [clojure.spec.alpha :as s]
             [clojure.string :as string]))
 

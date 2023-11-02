@@ -1,4 +1,4 @@
-(ns com.slothrop.clj-baseball.bbref.team-game-logs
+(ns ^:no-doc com.slothrop.clj-baseball.bbref.team-game-logs
   (:require [com.slothrop.clj-baseball.bbref.datasource :refer [-get]])
   (:import [org.jsoup.nodes Document$OutputSettings
             Document$OutputSettings$Syntax]

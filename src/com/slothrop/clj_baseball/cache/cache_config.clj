@@ -1,4 +1,4 @@
-(ns com.slothrop.clj-baseball.cache.cache-config
+(ns ^:no-doc com.slothrop.clj-baseball.cache.cache-config
   (:import [java.nio.file Paths]))
 
 (def ^:dynamic *cache-enabled?* false)

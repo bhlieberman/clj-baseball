@@ -1,4 +1,4 @@
-(ns com.slothrop.clj-baseball.statcast.specs
+(ns ^:no-doc com.slothrop.clj-baseball.statcast.specs
   (:require [clojure.spec.alpha :as s]))
 
 (s/def ::fastballs (s/coll-of #{:two-seam :four-seam :cutter :sinker} :distinct true))

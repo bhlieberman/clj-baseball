@@ -1,4 +1,4 @@
-(ns com.slothrop.clj-baseball.bbref.standings
+(ns ^:no-doc com.slothrop.clj-baseball.bbref.standings
   (:require [com.slothrop.clj-baseball.bbref.datasource :refer [-get]]
             [clojure.string :as string])
   (:import [org.jsoup.nodes Document]))
