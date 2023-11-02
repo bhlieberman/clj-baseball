@@ -34,9 +34,3 @@
                           .text
                           string/trim) col-text)))))
     :else (throw (ex-info "this is unimplemented for now, sorry!" {}))))
-
-(def season (get-standings-html 1900))
-
-(get-tables season 1900)
-
-
