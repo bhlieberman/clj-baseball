@@ -25,7 +25,7 @@
    :hfInfield nil :hfMo nil :hfPR nil,
    :hfBBL nil :hfAB nil :hfNewZones nil})
 
-(defn make-query-map
+(defn- make-query-map
   {:doc "Modifies the query map stored in query-defaults with a user-specified
    map of search parameters."}
   [defaults params]
@@ -33,7 +33,7 @@
      :post [(s/valid? :com.slothrop.statcast.specs/query %)]}
   (merge defaults params))
 
-(defn make-query-string
+(defn- make-query-string
   {:doc "Turns the map of query parameters into a query string compliant with
    Statcast's query endpoint. Does NOT perform URL encoding except
    where necessary. Arbitrary data that does not conform to the range of accepted
