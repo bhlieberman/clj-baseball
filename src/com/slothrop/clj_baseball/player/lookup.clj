@@ -20,26 +20,24 @@
   (with-open [is (jio/input-stream table)]
     (csv/csv->dataset is {:file-type :csv})))
 
-;; lookup table v2 from Chadwick Bureau
-(def register (client/get "https://github.com/chadwickbureau/register/archive/refs/heads/master.zip"
-                          {:async? true
-                           :as :stream}
-                          (fn [resp] resp)
-                          (fn [err] (throw (ex-info "Request for player lookup table failed" {:cause err})))))
-
 (defn- get-cached-register-file []
   (if (.exists (jio/file (.toUri ^java.nio.file.Path DEFAULT-CACHE-DIR)))
     (try (table->csv (str DEFAULT-CACHE-DIR "/last_query.csv"))
          (catch java.io.FileNotFoundException _))
     nil))
 
-(defn ^:private register->dataset [^FutureWrapper r] 
-  (let [cached-ds (get-cached-register-file)
-        ^BasicHttpResponse resp (.get r)
+(defn ^:private register->dataset []
+  (let [^FutureWrapper register (client/get "https://github.com/chadwickbureau/register/archive/refs/heads/master.zip"
+                                            {:async? true
+                                             :as :stream}
+                                            (fn [resp] resp)
+                                            (fn [err] (throw (ex-info "Request for player lookup table failed" {:cause err}))))
+        cached-ds (get-cached-register-file)
+        ^BasicHttpResponse resp (.get register)
         ^ContentBufferEntity contentity (.getEntity resp)]
     (future (or cached-ds (-> contentity
                               .getContent
-                           z/zipfile->dataset-seq)))))
+                              z/zipfile->dataset-seq)))))
 
 (defn- keep-cols [ds]
   (try (d/select-columns ds ["name_last" "name_first" "key_mlbam"
@@ -56,16 +54,16 @@
   (let [player-names (into [] (:player-name player-table))
         most-similar {:player-name
                       (map #(.getString ^BoundExtractedResult %) (FuzzySearch/extractTop (str player-first player-last)
-                                                                   player-names
-                                                                   5))}]
+                                                                                         player-names
+                                                                                         5))}]
     (j/pd-merge (d/->dataset most-similar) player-table {:on :player-name})))
 
-(defn- lookup-table [] 
+(defn- lookup-table []
   (letfn [(complete-records [ds] (m/drop-missing
                                   ds
                                   ["key_retro" "key_bbref" "key_fangraphs"
                                    "mlb_played_first" "mlb_played_last"]))]
-    (->> (register->dataset register)
+    (->> (register->dataset)
          deref
          (filter (fn [ds]
                    (-> ds
@@ -86,9 +84,9 @@
       (if (nil? player-first)
         (tcr/select-rows table (comp #(= % player-last) #(get % "name_last")))
         (tcr/select-rows table (comp (fn [[first last]]
-                                  (and (= first player-first) (= last player-last)))
-                                (juxt #(get % "name_first")
-                                      #(get % "name_last"))))))))
+                                       (and (= first player-first) (= last player-last)))
+                                     (juxt #(get % "name_first")
+                                           #(get % "name_last"))))))))
 
 (comment
   (search {:player-last "Ripken"
