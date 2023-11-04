@@ -26,18 +26,19 @@
           body (.. table (selectFirst (Evaluator$Tag. "tbody")))
           ^Elements rows (.getElementsByTag body "tr")
           data (for [^Element row (butlast rows)
-                     :let [^Elements cols (into [] (.getElementsByTag row "td"))]
+                     :let [^Elements cols (transient (into [] (.getElementsByTag row "td")))]
                      :when (not (zero? (count cols)))
                      :let [cols (cond-> cols
-                                  (string/blank? (.ownText ^Element (get cols 1))) (update 1 #(.text ^Element %1 %2) team)
-                                  (string/blank? (.ownText ^Element (get cols 3))) (update 3 #(.text ^Element %1 %2) "Home")
-                                  (string/blank? (.ownText ^Element (get cols 12))) (update 12 #(.text ^Element %1 %2) "None")
-                                  (string/blank? (.ownText ^Element (get cols 13))) (update 13 #(.text ^Element %1 %2) "None")
-                                  (string/blank? (.ownText ^Element (get cols 14))) (update 14 #(.text ^Element %1 %2) "None")
-                                  (string/blank? (.ownText ^Element (get cols 8))) (update 8 #(.text ^Element %1 %2) "9")
-                                  (string/blank? (.ownText ^Element (get cols 16))) (update 16 #(.text ^Element %1 %2) "Unknown")
-                                  (string/blank? (.ownText ^Element (get cols 15))) (update 15 #(.text ^Element %1 %2) "Unknown")
-                                  (string/blank? (.ownText ^Element (get cols 17))) (update 17 #(.text ^Element %1 %2) "Unknown"))]]
+                                  (string/blank? (.ownText ^Element (get cols 1))) (assoc! 1 (.text ^Element (get cols 1) team))
+                                  (string/blank? (.ownText ^Element (get cols 3))) (assoc! 3 (.text ^Element (get cols 3) "Home"))
+                                  (string/blank? (.ownText ^Element (get cols 12))) (assoc! 12 (.text ^Element (get cols 12) "None"))
+                                  (string/blank? (.ownText ^Element (get cols 13))) (assoc! 13 (.text ^Element (get cols 13) "None"))
+                                  (string/blank? (.ownText ^Element (get cols 14))) (assoc! 14 (.text ^Element (get cols 14) "None"))
+                                  (string/blank? (.ownText ^Element (get cols 8))) (assoc! 8 (.text ^Element (get cols 8) "9"))
+                                  (string/blank? (.ownText ^Element (get cols 16))) (assoc! 16 (.text ^Element (get cols 16) "Unknown"))
+                                  (string/blank? (.ownText ^Element (get cols 15))) (assoc! 15 (.text ^Element (get cols 15) "Unknown"))
+                                  (string/blank? (.ownText ^Element (get cols 17))) (assoc! 17 (.text ^Element (get cols 17) "Unknown"))
+                                  true persistent!)]]
                  (map #(.ownText %) cols))]
       (d/remove-column (->> data
                             (into [] (map (partial zipmap headings)))
