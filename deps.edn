@@ -7,8 +7,18 @@
         ring/ring-core {:mvn/version "1.9.6"}
         me.xdrop/fuzzywuzzy {:mvn/version "1.4.0"}}
  :aliases
- {:build
+ {:build 
   {:extra-deps {io.github.clojure/tools.build {:git/tag "v0.9.3" :git/sha "e537cd1"}}}
+  :cljs {:extra-paths ["dashboard/src"]
+         :extra-deps {com.fulcrologic/fulcro                 {:mvn/version "3.7.0-RC5"}
+                      com.fulcrologic/fulcro-rad             {:mvn/version "1.6.0-RC5"}
+                      com.fulcrologic/fulcro-rad-semantic-ui {:mvn/version "1.4.0-RC5"}
+                      com.fulcrologic/fulcro-i18n            {:mvn/version "1.1.0"}
+                      com.wsscode/pathom                     {:mvn/version "2.4.0"}
+                      edn-query-language/eql                 {:mvn/version "1.0.2"}
+                      com.fulcrologic/guardrails             {:mvn/version "1.2.4"}}}
+  :cljs-dev {:extra-deps {thheller/shadow-cljs {:mvn/version "2.27.5"}
+                          binaryage/devtools {:mvn/version "1.0.7"}}}
   :dev
   {:extra-deps  {org.clojure/test.check {:mvn/version "1.1.1"}
                  com.cognitect.aws/api       {:mvn/version "0.8.641"}

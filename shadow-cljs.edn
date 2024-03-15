@@ -1,0 +1,19 @@
+{:deps {:aliases [:cljs :cljs-dev]}
+ :dev-http {8080 "public"}
+ :builds {:app {:target :browser
+                :output-dir "resources/public/js/app"
+                :modules {:main {:init-fn com.slothrop.clj-baseball.dashboard.app.core/init}}
+                :dev {:compiler-options {:external-config {:guardrails {:emit-spec? true :throw? false}}}}
+                :js-options {:resolve
+                             {;; for performance checking during dev
+                                                     ;;"react-dom" {:target  :npm
+                                                     ;;:require "react-dom/cjs/react-dom.production.min.js"}
+                                                     ;;"react"     {:target  :npm
+                                                     ;;:require "react/cjs/react.production.min.js"}
+                              
+                                                     ;; Make js-joda-timezone a more reasonable build size
+                              "@js-joda/timezone"
+                              {:target  :npm
+                               :require "@js-joda/timezone/dist/js-joda-timezone-10-year-range.min.js"}}}
+                :devtools   {:preloads   [com.fulcrologic.fulcro.inspect.preload]
+                             :after-load com.slothrop.clj-baseball.dashboard.app.core/refresh}}}}

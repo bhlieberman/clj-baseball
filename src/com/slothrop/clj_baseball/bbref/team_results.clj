@@ -1,6 +1,7 @@
 (ns com.slothrop.clj-baseball.bbref.team-results
   (:require [com.slothrop.clj-baseball.bbref.datasource :refer [-get]]
             [com.slothrop.clj-baseball.utils :refer [most-recent-season]]
+            [clojure.pprint :as pprint]
             [clojure.string :as string]
             [tech.v3.dataset :as d])
   (:import [org.jsoup.nodes Document Document$OutputSettings
@@ -18,6 +19,18 @@
               (.outputSettings doc
                                (.syntax (Document$OutputSettings.)
                                         Document$OutputSettings$Syntax/xml))))))
+
+(defmacro transform-cols []
+  (let [cols (gensym "cols")]
+    `(cond-> ~cols
+       ~@(mapcat (fn [coll]
+                   (let [num (first coll)
+                         value (second coll)]
+                     `[(string/blank? (.ownText ^Element (get ~cols ~num)))
+                       (assoc! ~num (.text ^Element (get ~cols ~num) ~value))]))
+                 [[1 "BAL"] [3 "Home"] [12 "None"]
+                  [13 "None"] [14 "None"] [8 "9"]
+                  [15 "Unknown"] [16 "Unknown"] [17 "Unknown"]]))))
 
 (defn- get-table [^Document html team]
   (if-some [^Element table (.selectFirst html (Evaluator$Tag. "table"))]
