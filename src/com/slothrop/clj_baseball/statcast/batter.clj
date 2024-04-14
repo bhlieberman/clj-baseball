@@ -10,7 +10,8 @@
 (def query-defaults
   "The default map of query parameter values. Can be changed to modify the scope
    and size of your Statcast query."
-  {:sort-col "pitches" :hfSit nil :hfPT nil,
+  {:all true
+   :sort-col "pitches" :hfSit nil :hfPT nil,
    :hfOutfield nil :game-date-gt nil :min-pitches "0",
    :metric-1 nil :hfSA nil :hfInn nil,
    :hfTeam nil :game-date-lt nil :batter-stands nil,
@@ -57,7 +58,7 @@
   {:doc "Sends the composed and spec'ed query to Statcast."}
   [params]
   #_{:post [(every? #(s/valid? :com.slothrop.statcast.results-spec/results %) %)]}
-  (let [url "https://baseballsavant.mlb.com/statcast_search/csv?"
+  (let [url "https://baseballsavant.mlb.com/statcast_search/csv"
         qs (make-query-map query-defaults params)
         results (some-> 
                  (hc/get url {:as :stream :query-params qs})
