@@ -4,6 +4,7 @@
   (:require [com.slothrop.clj-baseball.statcast.batter :refer [send-req!]]
             [com.slothrop.clj-baseball.player.lookup :refer [search]]
             [com.slothrop.clj-baseball.bbref.league-batting :as lb]
+            [com.slothrop.clj-baseball.bbref.league-pitching :as lp]
             [com.slothrop.clj-baseball.bbref.team-batting :as b]
             [com.slothrop.clj-baseball.bbref.team-pitching :as p]
             [com.slothrop.clj-baseball.bbref.team-fielding :as f]))
@@ -23,6 +24,11 @@
   "Return the league batting stats from Baseball Reference between `start-date` and `end-date`."
   [start-date end-date]
   (lb/batting-stats-table start-date end-date))
+
+(defn league-pitching
+  "Return the league pitching stats from Baseball Reference between `start-date` and `end-date`."
+  [start-date end-date]
+  (lp/pitching-stats-table start-date end-date))
 
 (defn team-batting
   "Return the given `team`'s batting stats from Baseball Reference between `start-date` and `end-date`."
