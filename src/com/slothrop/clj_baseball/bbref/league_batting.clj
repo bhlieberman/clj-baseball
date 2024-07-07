@@ -25,9 +25,7 @@
     (assoc headers 0 "MLB_ID")))
 
 (defn batting-stats-table
-  {:doc "Retrieves daily batting leaders for the provided date range. 
-         WARNING: if you see `SocketTimeoutException`, evaluate a second time. This is a bug.
-         Upon a second execution, the function will return a TMD dataset."}
+  {:doc "Retrieves daily batting leaders for the provided date range."}
   [start-date end-date]
   (let [table (get-table (get-html start-date end-date))
         headers (headers table)
