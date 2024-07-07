@@ -1,17 +1,16 @@
-(ns com.slothrop.clj-baseball.bbref.league-batting
+(ns com.slothrop.clj-baseball.bbref.league-pitching
   (:require [com.slothrop.clj-baseball.bbref.datasource :refer [-get]]
-            [clojure.string :as string] 
+            [clojure.string :as string]
             [tech.v3.dataset :as d])
   (:import [org.jsoup.nodes Document Element]
            [org.jsoup.select Elements]))
 
-(set! *warn-on-reflection* false)
+(set! *warn-on-reflection* true)
 
 (defn- get-html [start-date end-date]
-  (let [url "http://www.baseball-reference.com/leagues/daily.cgi?user_team=&bust_cache=&type=b&lastndays=7&dates=fromandto&fromandto=%s.%s&level=mlb&franch=&stat=&stat_value=0"]
+  (let [url "http://www.baseball-reference.com/leagues/daily.cgi?user_team=&bust_cache=&type=p&lastndays=7&dates=fromandto&fromandto=%s.%s&level=mlb&franch=&stat=&stat_value=0"]
     (-> url
         (format start-date end-date)
-        ;; BUG: -get times out on first call: evaluate again and it works
         -get)))
 
 (defn- get-table ^Elements [^Document html]
@@ -24,13 +23,14 @@
         headers (into [] xf (.selectXpath table "//table//tr//th"))]
     (assoc headers 0 "MLB_ID")))
 
-(defn batting-stats-table
-  {:doc "Retrieves daily batting leaders for the provided date range."}
+(defn pitching-stats-table
+  {:doc "Retrieves daily pitching leaders for the provided date range."}
   [start-date end-date]
-  (let [table (get-table (get-html start-date end-date))
+  (let [table (-> (get-html start-date end-date)
+                  get-table)
         headers (headers table)
-        body (.selectXpath table "//table//tbody//tr//td")
-        xf (comp (partition-all 28)
+        body (.selectXpath table "//table//tbody/tr/td")
+        xf (comp (partition-all 41)
                  (map (fn [[[id name] _ & stats]] (zipmap headers
                                                           (apply vector id name stats)))))]
     (d/->dataset (into [] xf
@@ -44,6 +44,3 @@
                                                   (nth 1 nil))
                                    id-or-stats (if (some? mlb-id) [mlb-id (.text td)] (.text td))]]
                          id-or-stats)))))
-
-(comment
-  (batting-stats-table "2023-04-28" "2023-05-01"))

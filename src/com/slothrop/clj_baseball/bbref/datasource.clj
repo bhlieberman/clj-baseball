@@ -16,7 +16,3 @@
         (Thread/sleep sleep-time)))
     (reset! time-since-last-request (LocalDateTime/now)))
   (.. session newRequest (url url) get))
-
-(comment
-  #_(binding [time-since-last-request (LocalDateTime/of 2023 8 28 9 17 56 30)]
-    (.until time-since-last-request (LocalDateTime/now) ChronoUnit/SECONDS)))

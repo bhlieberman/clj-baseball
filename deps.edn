@@ -1,28 +1,14 @@
 {:paths ["src" "resources"]
- :deps {org.jsoup/jsoup {:mvn/version "1.15.3"}
-        clj-http/clj-http {:mvn/version "3.12.3"}
-        com.cnuernber/charred {:mvn/version "1.014"}
-        techascent/tech.ml.dataset {:mvn/version "7.000-beta-53"}
-        scicloj/tablecloth {:mvn/version "7.000-beta-51"}
-        ring/ring-core {:mvn/version "1.9.6"}
+ :deps {org.jsoup/jsoup {:mvn/version "1.17.2"}
+        com.cnuernber/charred {:mvn/version "1.034"}
+        hato/hato {:mvn/version "0.9.0"}
+        techascent/tech.ml.dataset {:mvn/version "7.029"}
+        scicloj/tablecloth {:mvn/version "7.029"}
+        ring/ring-core {:mvn/version "1.12.1"}
         me.xdrop/fuzzywuzzy {:mvn/version "1.4.0"}}
  :aliases
  {:build
-  {:extra-deps {io.github.clojure/tools.build {:git/tag "v0.9.3" :git/sha "e537cd1"}}}
-  :dev
-  {:extra-deps  {org.clojure/test.check {:mvn/version "1.1.1"}
-                 com.cognitect.aws/api       {:mvn/version "0.8.641"}
-                 com.cognitect.aws/endpoints {:mvn/version "1.1.12.398"}
-                 com.cognitect.aws/s3        {:mvn/version "825.2.1250.0"}}}
-  :test {:exec-fn test.main.com.slothrop.exec/run-ns-tests}
-  :jdk-17
-  {:jvm-opts ["--add-modules" "jdk.incubator.foreign"
-              "--enable-native-access=ALL-UNNAMED"]}
-  :python
-  {:extra-deps {clj-python/libpython-clj {:mvn/version "2.023"}}
-   :extra-paths ["src/com/slothrop/interop"]}
-  :portal
-  {:extra-deps {djblue/portal {:mvn/version "0.33.0"}}} 
-  :deploy {:replace-deps {slipset/deps-deploy {:mvn/version "0.1.5"}}
+  {:extra-deps {io.github.clojure/tools.build {:mvn/version "0.10.0"}}}
+  :deploy {:replace-deps {slipset/deps-deploy {:mvn/version "0.2.2"}}
            :exec-fn deps-deploy.deps-deploy/deploy
            :exec-args {:installer :remote :artifact "target/clj-baseball-0.4.21.jar"}}}}

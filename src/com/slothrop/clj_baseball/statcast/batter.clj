@@ -4,14 +4,14 @@
             [clojure.edn :as edn]
             [clojure.spec.alpha :as s]
             [charred.api :refer [read-csv]]
-            [tech.v3.dataset :as d]
-            [clj-http.client :as client])
-  (:import [java.net URLEncoder]))
+            [hato.client :as hc]
+            [tech.v3.dataset :as d]))
 
 (def query-defaults
   "The default map of query parameter values. Can be changed to modify the scope
    and size of your Statcast query."
-  {:sort-col "pitches" :hfSit nil :hfPT nil,
+  {:all true
+   :sort-col "pitches" :hfSit nil :hfPT nil,
    :hfOutfield nil :game-date-gt nil :min-pitches "0",
    :metric-1 nil :hfSA nil :hfInn nil,
    :hfTeam nil :game-date-lt nil :batter-stands nil,
@@ -32,18 +32,6 @@
   #_{:pre [(s/valid? :com.slothrop.statcast.specs/query params)]
      :post [(s/valid? :com.slothrop.statcast.specs/query %)]}
   (merge defaults params))
-
-(defn make-query-string
-  {:doc "Turns the map of query parameters into a query string compliant with
-   Statcast's query endpoint. Does NOT perform URL encoding except
-   where necessary. Arbitrary data that does not conform to the range of accepted
-   values for a parameter will not modify the results."}
-  [kvs]
-  (letfn [(underscores [k] (-> k name (string/replace #"-" "_")))
-          (make-qs [acc k v] (cond-> acc
-                               (nil? v) (str (underscores k) "=&")
-                               (some? v) (str (underscores k) "=" v "&")))]
-    (-> make-qs (reduce-kv "" kvs) (str "all=true"))))
 
 (defn- parse-double-vals [m]
   (let [ks (select-keys m [:release-pos-x :release-pos-y :release-pos-z :vx0 :vy0
@@ -66,20 +54,16 @@
                            :game-pk :batter :fielder-8 :fielder-3 :fielder-4])]
     (merge m (zipmap (keys ks) (map parse-long (vals ks))))))
 
-(defn- encode-url-params [params]
-  (reduce-kv (fn [m k ^String v]
-               (assoc m k (some-> v (URLEncoder/encode "utf-8")))) {} params))
-
 (defn send-req!
   {:doc "Sends the composed and spec'ed query to Statcast."}
   [params]
   #_{:post [(every? #(s/valid? :com.slothrop.statcast.results-spec/results %) %)]}
-  (let [url "https://baseballsavant.mlb.com/statcast_search/csv?"
-        qs (->> params (make-query-map query-defaults) encode-url-params make-query-string (str url))
-        results (some-> qs
-                        (client/get {:as :stream})
-                        :body
-                        read-csv)
+  (let [url "https://baseballsavant.mlb.com/statcast_search/csv"
+        qs (make-query-map query-defaults params)
+        results (some-> 
+                 (hc/get url {:as :stream :query-params qs})
+                 :body ;; I think the endpoint is down right now, check later
+                 read-csv)
         cols (map (comp keyword #(string/replace % #"_" "-")) (first results))]
     (->> (rest results)
          (map (comp parse-int-vals

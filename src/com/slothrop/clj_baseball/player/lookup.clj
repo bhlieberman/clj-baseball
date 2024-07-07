@@ -1,6 +1,7 @@
 (ns com.slothrop.clj-baseball.player.lookup
   (:require [clojure.java.io :as jio]
-            [clj-http.client :as client]
+            [com.slothrop.clj-baseball.http-utils :refer [client]]
+            [hato.client :as hc]
             [tablecloth.api.missing :as m]
             [tablecloth.api.rows :as tcr]
             [tech.v3.dataset.io.csv :as csv]
@@ -9,10 +10,7 @@
             [tech.v3.dataset.zip :as z]
             [com.slothrop.clj-baseball.cache.cache-config :refer [DEFAULT-CACHE-DIR]])
   (:import [me.xdrop.fuzzywuzzy FuzzySearch]
-           [me.xdrop.fuzzywuzzy.model BoundExtractedResult]
-           [org.apache.http.impl.nio.client FutureWrapper]
-           [org.apache.http.message BasicHttpResponse]
-           [org.apache.http.nio.entity ContentBufferEntity]))
+           [me.xdrop.fuzzywuzzy.model BoundExtractedResult]))
 
 (set! *warn-on-reflection* true)
 
@@ -27,17 +25,15 @@
     nil))
 
 (defn ^:private register->dataset []
-  (let [^FutureWrapper register (client/get "https://github.com/chadwickbureau/register/archive/refs/heads/master.zip"
-                                            {:async? true
-                                             :as :stream}
-                                            (fn [resp] resp)
-                                            (fn [err] (throw (ex-info "Request for player lookup table failed" {:cause err}))))
-        cached-ds (get-cached-register-file)
-        ^BasicHttpResponse resp (.get register)
-        ^ContentBufferEntity contentity (.getEntity resp)]
-    (future (or cached-ds (-> contentity
-                              .getContent
-                              z/zipfile->dataset-seq)))))
+  (let [register
+        (hc/get "https://github.com/chadwickbureau/register/archive/refs/heads/master.zip"
+                {:as :stream
+                 :http-client client
+                 :async? true}
+                (fn [{:keys [body]}] (z/zipfile->dataset-seq body))
+                #(throw (ex-info "Something went wrong retrieving the player register" {})))
+        cached-ds (get-cached-register-file)]
+    (or cached-ds register)))
 
 (defn- keep-cols [ds]
   (try (d/select-columns ds ["name_last" "name_first" "key_mlbam"
@@ -53,9 +49,10 @@
 (defn- get-closest-names [player-last player-first player-table]
   (let [player-names (into [] (:player-name player-table))
         most-similar {:player-name
-                      (map #(.getString ^BoundExtractedResult %) (FuzzySearch/extractTop (str player-first player-last)
-                                                                                         player-names
-                                                                                         5))}]
+                      (map #(.getString ^BoundExtractedResult %)
+                           (FuzzySearch/extractTop (str player-first player-last)
+                                                   player-names
+                                                   5))}]
     (j/pd-merge (d/->dataset most-similar) player-table {:on :player-name})))
 
 (defn- lookup-table []
