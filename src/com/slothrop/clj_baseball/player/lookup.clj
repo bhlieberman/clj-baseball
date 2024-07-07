@@ -41,7 +41,7 @@
                              "mlb_played_first", "mlb_played_last"])
        (catch Exception _)))
 
-(def PEOPLE_PATTERN (re-pattern ".*people\\-[0-9a-f]\\.csv"))
+(def ^:private PEOPLE_PATTERN (re-pattern ".*people\\-[0-9a-f]\\.csv"))
 
 (defn- create-full-names [ds]
   (d/row-map ds (fn [row] {:player-name (str (row "name_first") " " (row "name_last"))})))

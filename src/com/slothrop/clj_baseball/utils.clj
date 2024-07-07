@@ -1,4 +1,4 @@
-(ns ^:no-doc com.slothrop.clj-baseball.statcast.utils
+(ns ^:no-doc com.slothrop.clj-baseball.utils
   (:require [com.slothrop.clj-baseball.statcast.batter :refer [query-defaults]]
             [clojure.string :as string]
             [clojure.edn :as edn])
