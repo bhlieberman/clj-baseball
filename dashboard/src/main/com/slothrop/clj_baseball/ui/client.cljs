@@ -8,11 +8,17 @@
 
 (defonce app (with-react18 (app/fulcro-app)))
 
-(defsc Root [this props]
+(defsc Root [this {:keys [player]}]
+  {:query [{:player (comp/get-query lookup/PlayerProfile)} 
+           {:lookup (comp/get-query ui/PlayerLookup)}]
+   :initial-state (fn [_] {:player (comp/get-initial-state lookup/PlayerProfile)
+                           :lookup (comp/get-initial-state ui/PlayerLookup)})}
   (dom/div
-   (lookup/ui-player-profile {:player/name_ "Gunnar Henderson"})
+   (lookup/ui-player-profile player)
    (ui/ant-divider)
-   (lookup/ui-player-lookup)))
+   (ui/ui-player-lookup {:player/first-name "Gunnar"
+                         :player/last-name "Henderson"
+                         :ui/loading? false})))
 
 (defn ^:export init []
   (app/mount! app Root "root")

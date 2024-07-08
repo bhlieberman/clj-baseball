@@ -5,4 +5,6 @@
  {:client {:target :esm
            :output-dir "resources/public/js"
            :modules {:main {:init-fn com.slothrop.clj-baseball.ui.client/init}}
-           :devtools {:after-load com.slothrop.clj-baseball.ui.client/refresh}}}}
+           :devtools {:after-load com.slothrop.clj-baseball.ui.client/refresh
+                      :preloads   [com.fulcrologic.fulcro.inspect.preload
+                                   com.fulcrologic.fulcro.inspect.dom-picker-preload]}}}}

@@ -3,12 +3,9 @@
             [com.fulcrologic.fulcro.dom :as dom]
             [com.slothrop.clj-baseball.ui.core :as ui]))
 
-(defsc PlayerLookup [this {:player/keys [first-name last-name]}]
-  (dom/div
-   (ui/player-lookup-form)))
-
 (defsc PlayerProfile [this {:player/keys [name_ mlb-id]}]
-  {:query [:player/name_ :player/mlb-id]}
+  {:query [:player/name_ :player/mlb-id]
+   :ident :player/mlb-id}
   (dom/div
    (ui/ant-title {} "Player profile")
    (dom/section
@@ -18,5 +15,3 @@
     (ui/ant-paragraph {} "Esse quam videri..."))))
 
 (def ui-player-profile (comp/factory PlayerProfile))
-
-(def ui-player-lookup (comp/factory PlayerLookup))
