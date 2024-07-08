@@ -12,6 +12,8 @@
   (:import [me.xdrop.fuzzywuzzy FuzzySearch]
            [me.xdrop.fuzzywuzzy.model BoundExtractedResult]))
 
+;; TODO: implement the caching layer
+
 (set! *warn-on-reflection* true)
 
 (defn- table->csv [table]
