@@ -16,8 +16,8 @@
   (dom/div
    (lookup/ui-player-profile player)
    (ui/ant-divider)
-   (ui/ui-player-lookup {:player/first-name "Gunnar"
-                         :player/last-name "Henderson"
+   (ui/ui-player-lookup {:player/first-name ""
+                         :player/last-name ""
                          :ui/loading? false})))
 
 (defn ^:export init []

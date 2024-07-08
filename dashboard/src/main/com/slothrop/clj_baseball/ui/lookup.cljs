@@ -3,8 +3,9 @@
             [com.fulcrologic.fulcro.dom :as dom]
             [com.slothrop.clj-baseball.ui.core :as ui]))
 
-(defsc PlayerProfile [this {:player/keys [name_ mlb-id]}]
+(defsc PlayerProfile [_ {:player/keys [name_ mlb-id]}]
   {:query [:player/name_ :player/mlb-id]
+   :initial-state {:player/name_ "" :player/mlb-id nil}
    :ident :player/mlb-id}
   (dom/div
    (ui/ant-title {} "Player profile")
