@@ -6,5 +6,13 @@
            :output-dir "resources/public/js"
            :modules {:main {:init-fn com.slothrop.clj-baseball.ui.client/init}}
            :devtools {:after-load com.slothrop.clj-baseball.ui.client/refresh
-                      :preloads   [com.fulcrologic.fulcro.inspect.preload
-                                   com.fulcrologic.fulcro.inspect.dom-picker-preload]}}}}
+                      :preloads   [day8.re-frame-10x.preload.react-18]}
+           :dev
+           {:compiler-options
+            {:closure-defines
+             {re-frame.trace.trace-enabled?        true
+              day8.re-frame.tracing.trace-enabled? true}}}
+           :release
+           {:build-options
+            {:ns-aliases
+             {day8.re-frame.tracing day8.re-frame.tracing-stubs}}}}}}

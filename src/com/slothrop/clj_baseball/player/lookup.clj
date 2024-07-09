@@ -22,7 +22,7 @@
 
 (defn- get-cached-register-file []
   (if (.exists (jio/file (.toUri ^java.nio.file.Path DEFAULT-CACHE-DIR)))
-    (try (table->csv (str DEFAULT-CACHE-DIR "/last_query.csv"))
+    (try (table->csv (str DEFAULT-CACHE-DIR "/register.csv"))
          (catch java.io.FileNotFoundException _))
     nil))
 
@@ -33,9 +33,8 @@
                  :http-client client
                  :async? true}
                 (fn [{:keys [body]}] (z/zipfile->dataset-seq body))
-                #(throw (ex-info "Something went wrong retrieving the player register" {})))
-        cached-ds (get-cached-register-file)]
-    (or cached-ds register)))
+                #(throw (ex-info "Something went wrong retrieving the player register" {})))]
+    register))
 
 (defn- keep-cols [ds]
   (try (d/select-columns ds ["name_last" "name_first" "key_mlbam"
@@ -46,33 +45,36 @@
 (def ^:private PEOPLE_PATTERN (re-pattern ".*people\\-[0-9a-f]\\.csv"))
 
 (defn- create-full-names [ds]
-  (d/row-map ds (fn [row] {:player-name (str (row "name_first") " " (row "name_last"))})))
+  (d/row-map ds (fn [row] {"player-name" (str (row "name_first") " " (row "name_last"))})))
 
 (defn- get-closest-names [player-last player-first player-table]
-  (let [player-names (into [] (:player-name player-table))
-        most-similar {:player-name
+  (let [player-names (into [] (get player-table "player-name"))
+        most-similar {"player-name"
                       (map #(.getString ^BoundExtractedResult %)
                            (FuzzySearch/extractTop (str player-first player-last)
                                                    player-names
                                                    5))}]
-    (j/pd-merge (d/->dataset most-similar) player-table {:on :player-name})))
+    (j/pd-merge (d/->dataset most-similar) player-table {:on "player-name"})))
 
-(defn- lookup-table []
+(defn lookup-table []
   (letfn [(complete-records [ds] (m/drop-missing
                                   ds
                                   ["key_retro" "key_bbref" "key_fangraphs"
                                    "mlb_played_first" "mlb_played_last"]))]
-    (->> (register->dataset)
-         deref
-         (filter (fn [ds]
-                   (-> ds
-                       d/dataset-name
-                       (->> (re-matcher PEOPLE_PATTERN)
-                            re-find))))
-         (apply d/concat)
-         keep-cols
-         complete-records
-         create-full-names)))
+    (if-not (.exists (jio/file (str DEFAULT-CACHE-DIR "/register.csv")))
+      (let [register (->> (register->dataset)
+                          deref
+                          (filter (fn [ds]
+                                    (-> ds
+                                        d/dataset-name
+                                        (->> (re-matcher PEOPLE_PATTERN)
+                                             re-find))))
+                          (apply d/concat)
+                          keep-cols
+                          complete-records
+                          create-full-names)]
+        (d/write! register (str DEFAULT-CACHE-DIR "/register.csv")))
+      (get-cached-register-file))))
 
 (defn search
   {:doc "Look up a player's MLB ID from the Chadwick Bureau dataset. Accepts a `fuzzy?` flag to enable fuzzy searching of names."}
