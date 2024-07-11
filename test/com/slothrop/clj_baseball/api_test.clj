@@ -5,8 +5,8 @@
 (deftest statcast-returns-data
   (testing "that the api/statcast function returns data or nil"
     (is (some? (api/statcast {:hfTeam "BAL"
-                             :game-date-gt "2023-06-01"
-                             :game-date-lt "2023-06-02"})))))
+                              :game_date_gt "2023-06-01"
+                              :game_date_lt "2023-06-02"})))))
 
 (deftest api-no-timeouts
   (testing "that the API functions which rely on the -get method don't timeout"
